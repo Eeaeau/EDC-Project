@@ -8,14 +8,17 @@ from scipy.io import loadmat
 
 with open('Iris_TTT4275\class_1.txt', 'r') as f:
     x1all = np.array([[float(num) for num in line.split(',')] for line in f])
+    # x1all = np.append(x1all[:], np.array([1, 0, 0]))
 print("x1all: ", x1all)
 
 with open('Iris_TTT4275\class_2.txt', 'r') as f:
     x2all = np.array([[float(num) for num in line.split(',')] for line in f])
+    # np.append(x2all[:], np.array([0, 1, 0]))
 print("x2all: ", x2all)
 
 with open('Iris_TTT4275\class_3.txt', 'r') as f:
     x3all = np.array([[float(num) for num in line.split(',')] for line in f])
+    # x3all = np.append(x3all[:], np.array([0, 0, 1]))
 print("x3all: ", x3all)
 
 # x1 = [x1all(:, 4) x1all(:, 1) x1all(:, 2)]
@@ -41,7 +44,7 @@ alpha = .01  # step size
 # ------------- functions -------
 
 def linear_descriminat_classifier(x, W, wo):
-    return W*x+wo
+    return np.matmul(W, x)+wo
 
 
 def MSE(g, t, N):
@@ -52,12 +55,12 @@ def MSE(g, t, N):
 
 
 def w_gradiant(x, g, t):
-    gradw_mse = 0
+    gradw_mse = np.zeros(num_classes)
     N = len(g)
     for k in range(N):
         gradg_mse = g[k] - t[k]
         gradz_g = np.multiply(g[k], 1-g[k])
-        gradw_z = np.transpose(x[k])
+        gradw_z = np.transpose(x)
 
         gradw_mse += gradg_mse*gradz_g*gradw_z
         # mse_grad_w += np.gradient(mse, g[k])*np.gradient(g[k],
@@ -80,26 +83,32 @@ print("training dataset: ", (training_dataset))
 print(np.shape(testing_dataset))
 
 # x = np.empty((num_attributes, num_data))
-x = training_dataset
 
-x[:, :] = np.linspace(0, 10, num_data)
+W = np.ones([1, num_classes, num_attributes])
 
-W = np.ones([num_classes, num_attributes])
+print("W: ", W)
 
-t = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-t = np.array([num_data, num_classes])
-t = [[1, 0, 0], [0, 0, 1], [0, 1, 0] """..."""]
-training_dataset[1]
+# t = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+#t = np.array([num_data, num_classes])
+# t = [[1, 0, 0], [0, 0, 1], [0, 1, 0] """..."""]
 
-g = np.empty(num_classes, num_classes)
+# g = np.empty([num_classes])
+
+# setter input data til x
+
 
 for c in range(num_classes):
+    for i in range(training_size):
+        g = linear_descriminat_classifier(training_dataset[c, i], W[-1], 0)
 
-    g[c] = linear_descriminat_classifier(x, W[c], .5)
+        print("g: ", g)
 
-    if (0 == c):
-        np.append(W, W[c] - alpha*w_gradiant(x, g, np.array([1, 0, 0])))
-    elif (1 == c):
-        np.append(W, W[c] - alpha*w_gradiant(x, g, np.array([0, 1, 0])))
-    else:
-        np.append(W, W[c] - alpha*w_gradiant(x, g, np.array([0, 0, 1])))
+        if (0 == c):
+            np.append(
+                W, W[-1] - alpha*w_gradiant(training_dataset[c, i], g, np.array([1, 0, 0])))
+        elif (1 == c):
+            np.append(
+                W, W[-1] - alpha*w_gradiant(training_dataset[c, i], g, np.array([0, 1, 0])))
+        else:
+            np.append(
+                W, W[-1] - alpha*w_gradiant(training_dataset[c, i], g, np.array([0, 0, 1])))
