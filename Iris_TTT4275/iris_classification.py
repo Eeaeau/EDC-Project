@@ -44,33 +44,16 @@ alpha = .01  # step size
 # ------------- functions -------
 
 def linear_descriminat_classifier(x, W, wo):
+    print("x", x)
+    print("w:", W)
     return np.matmul(W, x)+wo
 
 
-def MSE(g, t, N):
-    mse = 0
-    for k in range(N):
-        mse += np.transpose(g[k] - t[k])*(g[k] - t[k])
-    return .5*mse
-
-
-def w_gradiant(x, g, t):
-    gradw_mse = np.zeros(num_classes)
-    N = len(g)
-    for k in range(N):
-        gradg_mse = g[k] - t[k]
-        gradz_g = np.multiply(g[k], 1-g[k])
-        gradw_z = np.transpose(x)
-
-        gradw_mse += gradg_mse*gradz_g*gradw_z
-        # mse_grad_w += np.gradient(mse, g[k])*np.gradient(g[k],
-        #                                                W*x[k]) * np.gradient(W*x[k], W)
-    return gradw_mse
-
-
-def train_LC(iterations=500):
-    for i in range(iterations):
-        print("training ... ")
+# def MSE(g, t, N):
+#     mse = 0
+#     for k in range(N):
+#         mse += np.transpose(g[k] - t[k])*(g[k] - t[k])
+#     return .5*mse
 
 
 def split_dataset(dataset, training_size, testing_size=testing_size):
@@ -83,6 +66,69 @@ def split_dataset(dataset, training_size, testing_size=testing_size):
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
+
+
+def combined_mse(x, t):
+    # gradw_mse = np.zeros(num_classes)
+    gradw_mse = 0
+    mse = 0
+
+    N = len(x)
+
+    for k in range(N):
+
+        g = linear_descriminat_classifier(x[k], W[-1], 0)
+
+        g = sigmoid(g)
+
+        print(g)
+        print(t)
+
+        gradgk_mse = g - t
+        print("gradgk_mse:", gradgk_mse)
+
+        gradzk_g = np.multiply(g, 1-g)
+        print("gradzk_g:", gradzk_g)
+
+        gradw_zk = np.transpose(x[k])
+        print("gradw_zk: ", gradw_zk)
+
+        # gradw_mse += gradgk_mse*gradzk_g*gradw_zk
+        # gradw_mse += np.matmul(np.multiply(gradgk_mse, gradzk_g), gradw_zk)
+        gradw_mse += np.multiply(gradgk_mse, gradzk_g)
+
+        mse += np.matmul(gradgk_mse.T, gradgk_mse)
+
+    print("gradw_mse", gradw_mse)
+
+    return 1/2*mse, gradw_mse
+
+
+def train_LC(training_dataset, W, iterations=500):
+    for i in range(iterations):
+        for c in range(num_classes):
+            # for k in range(training_size):
+            # g = linear_descriminat_classifier(training_dataset[c], W[-1], 0)
+
+            # g = sigmoid(g)
+
+            # print("g: ", g)
+
+            if (0 == c):
+                mse, gradw_mse = combined_mse(
+                    training_dataset[c], np.array([1, 0, 0]))
+                np.append(
+                    W, W[-1] - alpha * gradw_mse)
+            elif (1 == c):
+                mse, gradw_mse = combined_mse(
+                    training_dataset[c], np.array([0, 1, 0]))
+                np.append(
+                    W, W[-1] - alpha * gradw_mse)
+            else:
+                mse, grad_W_MSE = combined_mse(
+                    training_dataset[c], np.array([0, 0, 1]))
+                np.append(
+                    W, W[-1] - alpha * grad_W_MSE)
 
 # ------------- run -------------
 
@@ -106,7 +152,7 @@ W = np.ones([1, num_classes, num_attributes])
 print("W: ", W)
 
 # t = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-#t = np.array([num_data, num_classes])
+# t = np.array([num_data, num_classes])
 # t = [[1, 0, 0], [0, 0, 1], [0, 1, 0] """..."""]
 
 # g = np.empty([num_classes])
@@ -114,20 +160,4 @@ print("W: ", W)
 # setter input data til x
 
 
-for c in range(num_classes):
-    for i in range(training_size):
-        g = linear_descriminat_classifier(training_dataset[c, i], W[-1], 0)
-
-        g = sigmoid(g)
-
-        print("g: ", g)
-
-        if (0 == c):
-            np.append(
-                W, W[-1] - alpha*w_gradiant(training_dataset[c, i], g, np.array([1, 0, 0])))
-        elif (1 == c):
-            np.append(
-                W, W[-1] - alpha*w_gradiant(training_dataset[c, i], g, np.array([0, 1, 0])))
-        else:
-            np.append(
-                W, W[-1] - alpha*w_gradiant(training_dataset[c, i], g, np.array([0, 0, 1])))
+train_LC(training_dataset, W, 1)
