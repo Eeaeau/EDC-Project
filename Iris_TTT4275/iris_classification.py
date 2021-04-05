@@ -67,6 +67,23 @@ def w_gradiant(x, g, t):
         #                                                W*x[k]) * np.gradient(W*x[k], W)
     return gradw_mse
 
+
+def train_LC(iterations=500):
+    for i in range(iterations):
+        print("training ... ")
+
+
+def split_dataset(dataset, training_size, testing_size=testing_size):
+
+    training_dataset = dataset[:, :training_size, :]
+    testing_dataset = dataset[:, -testing_size:, :]
+
+    return training_dataset, testing_dataset
+
+
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
 # ------------- run -------------
 
 
@@ -76,8 +93,8 @@ dataset[0] = x1all
 dataset[1] = x2all
 dataset[2] = x3all
 
-training_dataset = dataset[:, :training_size, :]
-testing_dataset = dataset[:, -testing_size:, :]
+
+training_dataset, testing_dataset = split_dataset(dataset, training_size)
 
 print("training dataset: ", (training_dataset))
 print(np.shape(testing_dataset))
@@ -100,6 +117,8 @@ print("W: ", W)
 for c in range(num_classes):
     for i in range(training_size):
         g = linear_descriminat_classifier(training_dataset[c, i], W[-1], 0)
+
+        g = sigmoid(g)
 
         print("g: ", g)
 
