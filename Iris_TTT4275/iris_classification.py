@@ -95,7 +95,8 @@ def combined_mse(x, t):
 
         # gradw_mse += gradgk_mse*gradzk_g*gradw_zk
         # gradw_mse += np.matmul(np.multiply(gradgk_mse, gradzk_g), gradw_zk)
-        gradw_mse += np.multiply(gradgk_mse, gradzk_g)
+        # should be be 3x5 matrix 
+        gradw_mse += np.matmul(gradgk_mse, gradzk_g)
 
         mse += np.matmul(gradgk_mse.T, gradgk_mse)
 
