@@ -9,17 +9,17 @@ from scipy.io import loadmat
 with open('Iris_TTT4275\class_1.txt', 'r') as f:
     x1all = np.array([[float(num) for num in line.split(',')] for line in f])
     # x1all = np.append(x1all[:], np.array([1, 0, 0]))
-print("x1all: ", x1all)
+# print("x1all: ", x1all)
 
 with open('Iris_TTT4275\class_2.txt', 'r') as f:
     x2all = np.array([[float(num) for num in line.split(',')] for line in f])
     # np.append(x2all[:], np.array([0, 1, 0]))
-print("x2all: ", x2all)
+# print("x2all: ", x2all)
 
 with open('Iris_TTT4275\class_3.txt', 'r') as f:
     x3all = np.array([[float(num) for num in line.split(',')] for line in f])
     # x3all = np.append(x3all[:], np.array([0, 0, 1]))
-print("x3all: ", x3all)
+# print("x3all: ", x3all)
 
 # x1 = [x1all(:, 4) x1all(:, 1) x1all(:, 2)]
 # x2 = [x2all(:, 4) x2all(:, 1) x2all(:, 2)]
@@ -81,7 +81,7 @@ def combined_mse(x, t):
 
         g = sigmoid(g)
 
-        print(g)
+        print('g: ', g)
         print(t)
 
         gradgk_mse = g - t
@@ -95,7 +95,7 @@ def combined_mse(x, t):
 
         # gradw_mse += gradgk_mse*gradzk_g*gradw_zk
         # gradw_mse += np.matmul(np.multiply(gradgk_mse, gradzk_g), gradw_zk)
-        # should be be 3x5 matrix 
+        # should be be 3x5 matrix
         gradw_mse += np.matmul(gradgk_mse, gradzk_g)
 
         mse += np.matmul(gradgk_mse.T, gradgk_mse)
@@ -126,39 +126,52 @@ def train_LC(training_dataset, W, iterations=500):
                 np.append(
                     W, W[-1] - alpha * gradw_mse)
             else:
-                mse, grad_W_MSE = combined_mse(
+                mse, gradw_mse = combined_mse(
                     training_dataset[c], np.array([0, 0, 1]))
                 np.append(
-                    W, W[-1] - alpha * grad_W_MSE)
+                    W, W[-1] - alpha * gradw_mse)
 
 # ------------- run -------------
 
 
-dataset = np.empty((num_classes, num_data, num_attributes))
+dataset = np.empty((num_classes, num_data, num_attributes+1))
 
 dataset[0] = x1all
 dataset[1] = x2all
 dataset[2] = x3all
 
 
-training_dataset, testing_dataset = split_dataset(dataset, training_size)
+# dataset[0] = np.array([np.append(data, 1) for data in x1all])
+# dataset[1] = np.array([np.append(data, 1) for data in x2all])
+# dataset[2] = np.array([np.append(data, 1) for data in x3all])
 
-print("training dataset: ", (training_dataset))
-print(np.shape(testing_dataset))
+for class in range(3):
+    
+    # dataset = [np.append(data, 1) for data in dataset]
+    # dataset = np.append(dataset[:, :], 1)
 
-# x = np.empty((num_attributes, num_data))
+print("element:", dataset)
 
-W = np.ones([1, num_classes, num_attributes])
+# training_dataset, testing_dataset = split_dataset(dataset, training_size)
 
-print("W: ", W)
+# print("training dataset: ", (training_dataset))
+# print(np.shape(testing_dataset))
 
-# t = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-# t = np.array([num_data, num_classes])
-# t = [[1, 0, 0], [0, 0, 1], [0, 1, 0] """..."""]
+# # x = np.empty((num_attributes, num_data))
 
-# g = np.empty([num_classes])
+# W_track = np.ones([1, num_classes, num_attributes+1])
 
-# setter input data til x
+# print("W: ", W_track)
+
+# # t = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+# # t = np.array([num_data, num_classes])
+# # t = [[1, 0, 0], [0, 0, 1], [0, 1, 0] """..."""]
+
+# # g = np.empty([num_classes])
+
+# # setter input data til x
 
 
-train_LC(training_dataset, W, 1)
+# train_LC(training_dataset, W_track, 1)
+
+# print("W: ", W_track)
