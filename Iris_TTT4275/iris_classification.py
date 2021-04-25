@@ -38,15 +38,15 @@ num_attributes = 4
 training_size = 30
 testing_size = 20
 
-alpha = .01  # step size
+alpha = .05  # step size
 
 
 # ------------- functions -------
 
-def linear_descriminat_classifier(x, W, wo):
-    print("x", x)
-    print("w:", W)
-    return np.matmul(W, x)+wo
+def linear_descriminat_classifier(x, W):
+    #print("x", x)
+    # print("w:", W)
+    return np.matmul(W, x)
 
 
 # def MSE(g, t, N):
@@ -68,7 +68,7 @@ def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
 
-def combined_mse(x, t):
+def combined_mse(x, t, W):
     # gradw_mse = np.zeros(num_classes)
     gradw_mse = 0
     mse = 0
@@ -77,35 +77,35 @@ def combined_mse(x, t):
 
     for k in range(N):
 
-        g = linear_descriminat_classifier(x[k], W[-1], 0)
+        g_temp = linear_descriminat_classifier(x[k], W)
 
-        g = sigmoid(g)
+        g_k = sigmoid(g_temp)
 
-        print('g: ', g)
-        print(t)
+        # print('g: ', g_k)
+        # print(t)
 
-        gradgk_mse = g - t
-        print("gradgk_mse:", gradgk_mse)
+        gradgk_mse = g_k - t
+        # print("gradgk_mse:", gradgk_mse)
 
-        gradzk_g = np.multiply(g, 1-g)
-        print("gradzk_g:", gradzk_g)
+        gradzk_g = np.multiply(g_k, 1-g_k)
+        # print("gradzk_g:", gradzk_g)
 
-        gradw_zk = np.transpose(x[k])
-        print("gradw_zk: ", gradw_zk)
+        gradw_zk = x[k].reshape(num_attributes + 1, 1)  # transposes
+        # print("gradw_zk: ", gradw_zk)
 
-        # gradw_mse += gradgk_mse*gradzk_g*gradw_zk
-        # gradw_mse += np.matmul(np.multiply(gradgk_mse, gradzk_g), gradw_zk)
-        # should be be 3x5 matrix
-        gradw_mse += np.matmul(gradgk_mse, gradzk_g)
+        temp = np.multiply(gradgk_mse, gradzk_g).reshape(
+            1, num_classes)  # make two dimentional
+
+        gradw_mse += gradw_zk @ temp
 
         mse += np.matmul(gradgk_mse.T, gradgk_mse)
 
-    print("gradw_mse", gradw_mse)
+    # print("gradw_mse", gradw_mse)
 
     return 1/2*mse, gradw_mse
 
 
-def train_LC(training_dataset, W, iterations=500):
+def train_LC(training_dataset, W_track, iterations=500):
     for i in range(iterations):
         for c in range(num_classes):
             # for k in range(training_size):
@@ -117,50 +117,49 @@ def train_LC(training_dataset, W, iterations=500):
 
             if (0 == c):
                 mse, gradw_mse = combined_mse(
-                    training_dataset[c], np.array([1, 0, 0]))
-                np.append(
-                    W, W[-1] - alpha * gradw_mse)
-            elif (1 == c):
+                    training_dataset[c], np.array([1, 0, 0]), W_track[-1])
+            elif(1 == c):
                 mse, gradw_mse = combined_mse(
-                    training_dataset[c], np.array([0, 1, 0]))
-                np.append(
-                    W, W[-1] - alpha * gradw_mse)
+                    training_dataset[c], np.array([0, 1, 0]), W_track[-1])
             else:
                 mse, gradw_mse = combined_mse(
-                    training_dataset[c], np.array([0, 0, 1]))
-                np.append(
-                    W, W[-1] - alpha * gradw_mse)
+                    training_dataset[c], np.array([0, 0, 1]), W_track[-1])
+
+            W_track = np.append(
+                W_track, [W_track[-1] - alpha * gradw_mse.T], axis=0)  # tricking gradw to match with W (extra transpose)
+            print(mse)
+
+    print("W: ", W_track[-1])
+
 
 # ------------- run -------------
 
 
 dataset = np.empty((num_classes, num_data, num_attributes+1))
+# dataset[0] = x1all
+# dataset[1] = x2all
+# dataset[2] = x3all
 
-dataset[0] = x1all
-dataset[1] = x2all
-dataset[2] = x3all
 
+dataset[0] = np.array([np.append(data, 1) for data in x1all])
+dataset[0] = np.array([np.append(data, 1) for data in x1all])
+dataset[1] = np.array([np.append(data, 1) for data in x2all])
+dataset[2] = np.array([np.append(data, 1) for data in x3all])
+# for class in range(3):
 
-# dataset[0] = np.array([np.append(data, 1) for data in x1all])
-# dataset[1] = np.array([np.append(data, 1) for data in x2all])
-# dataset[2] = np.array([np.append(data, 1) for data in x3all])
-
-for class in range(3):
-    
-    # dataset = [np.append(data, 1) for data in dataset]
-    # dataset = np.append(dataset[:, :], 1)
+# dataset = [np.append(data, 1) for data in dataset]
+# dataset = np.append(dataset[:, :], 1)
 
 print("element:", dataset)
 
-# training_dataset, testing_dataset = split_dataset(dataset, training_size)
-
+training_dataset, testing_dataset = split_dataset(dataset, training_size)
 # print("training dataset: ", (training_dataset))
 # print(np.shape(testing_dataset))
 
 # # x = np.empty((num_attributes, num_data))
 
-# W_track = np.ones([1, num_classes, num_attributes+1])
-
+W_track = np.empty([1, num_classes, num_attributes+1])
+W_track[0].fill(.5)
 # print("W: ", W_track)
 
 # # t = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
@@ -172,6 +171,4 @@ print("element:", dataset)
 # # setter input data til x
 
 
-# train_LC(training_dataset, W_track, 1)
-
-# print("W: ", W_track)
+train_LC(training_dataset, W_track, 2000)
