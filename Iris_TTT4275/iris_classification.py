@@ -194,8 +194,6 @@ dataset = np.empty((num_classes, num_data, num_attributes+1))
 # dataset[1] = x2all
 # dataset[2] = x3all
 
-
-dataset[0] = np.array([np.append(data, 1) for data in x1all])
 dataset[0] = np.array([np.append(data, 1) for data in x1all])
 dataset[1] = np.array([np.append(data, 1) for data in x2all])
 dataset[2] = np.array([np.append(data, 1) for data in x3all])
