@@ -1,9 +1,9 @@
 import numpy as np
 from numpy.core.defchararray import array
-import torch
+#import torch
 # from numpy.core.fromnumeric import transpose
-import scipy.stats as stats
-from scipy.io import loadmat
+#import scipy.stats as stats
+#from scipy.io import loadmat
 
 
 with open('Iris_TTT4275\class_1.txt', 'r') as f:
@@ -130,6 +130,19 @@ def train_LC(training_dataset, W_track, iterations=500):
             print(mse)
 
     print("W: ", W_track[-1])
+    return W_track[-1]
+
+
+def get_confusion_matrix(W, training_dataset):
+    confusion_matrix = np.zeros((num_classes, num_classes))
+
+    for i in range(testing_size):
+        for c in range(num_classes):
+            prediction = np.argmax(linear_descriminat_classifier(training_dataset[c,i], W))
+            print("prediction", prediction, linear_descriminat_classifier(training_dataset[c,i], W))
+            confusion_matrix[c, prediction] += 1
+
+    return confusion_matrix
 
 
 # ------------- run -------------
@@ -171,4 +184,15 @@ W_track[0].fill(.5)
 # # setter input data til x
 
 
-train_LC(training_dataset, W_track, 2000)
+W_track_final = train_LC(training_dataset, W_track, 2000)
+
+
+print("final W", W_track_final[-1])
+
+confusion_matrix = get_confusion_matrix(W_track_final, training_dataset)
+
+
+print("Confusion matrix", confusion_matrix)
+
+
+
