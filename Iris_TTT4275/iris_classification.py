@@ -1,36 +1,23 @@
 import numpy as np
 from numpy.core.defchararray import array
-#import torch
-#from numpy.core.fromnumeric import transpose
-#import scipy.stats as stats
-#from scipy.io import loadmat
-#import pandas as pd
-#import seaborn as sns
-#import matplotlib.pyplot as plt
+import torch
+from numpy.core.fromnumeric import transpose
+import scipy.stats as stats
+from scipy.io import loadmat
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 with open('Iris_TTT4275\class_1.txt', 'r') as f:
     x1all = np.array([[float(num) for num in line.split(',')] for line in f])
-    # x1all = np.append(x1all[:], np.array([1, 0, 0]))
-# print("x1all: ", x1all)
 
 with open('Iris_TTT4275\class_2.txt', 'r') as f:
     x2all = np.array([[float(num) for num in line.split(',')] for line in f])
-    # np.append(x2all[:], np.array([0, 1, 0]))
-# print("x2all: ", x2all)
 
 with open('Iris_TTT4275\class_3.txt', 'r') as f:
     x3all = np.array([[float(num) for num in line.split(',')] for line in f])
-    # x3all = np.append(x3all[:], np.array([0, 0, 1]))
-# print("x3all: ", x3all)
 
-# x1 = [x1all(:, 4) x1all(:, 1) x1all(:, 2)]
-# x2 = [x2all(:, 4) x2all(:, 1) x2all(:, 2)]
-# x3 = [x3all(:, 4) x3all(:, 1) x3all(:, 2)]
-
-# x1 = [x1all(:, 3) x1all(:, 4)]
-# x2 = [x2all(:, 3) x2all(:, 4)]
-# x3 = [x3all(:, 3) x3all(:, 4)]
 print("x1 len", len(x1all))
 
 # ----------- constants
@@ -62,21 +49,18 @@ def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
 
-def combined_mse(x, W):
-    # gradw_mse = np.zeros(num_classes)
-    gradw_mse = 0
+def combined_mse(x, W, true_class):
+    gradw_mse = np.zeros((num_classes, num_attributes + 1))
+    # gradw_mse = 0
     mse = 0
 
     N = len(x)
     for k in range(N):
         for c in range(num_classes):
-            if c == 0:
-                t = [1, 0, 0]
-            elif c == 1:
-                t = [0, 1, 0]
-            else:
-                t = [0, 0, 1]
-            g_temp = linear_descriminat_classifier(x[c,k], W)
+
+            t = true_class[c]
+
+            g_temp = linear_descriminat_classifier(x[c, k], W)
 
             g_k = sigmoid(g_temp)
             # print(t)
@@ -84,17 +68,17 @@ def combined_mse(x, W):
             gradgk_mse = g_k - t
             # print("gradgk_mse:", gradgk_mse)
 
-
             gradzk_g = np.multiply(g_k, 1-g_k)
             # print("gradzk_g:", gradzk_g)
 
-            gradw_zk = x[c, k].reshape(num_attributes + 1, 1)  # transposes
+            gradw_zk = x[c, k].reshape(1, num_attributes + 1)  # transposes
             # print("gradw_zk: ", gradw_zk)
 
             temp = np.multiply(gradgk_mse, gradzk_g).reshape(
-                1, num_classes)  # make two dimentional, such that it can represent a matrix
+                num_classes, 1)  # make two dimentional, such that it can represent a matrix
 
-            gradw_mse += gradw_zk @ temp
+            # print("temp: ", temp)
+            gradw_mse += temp @ gradw_zk
 
             mse += np.matmul(gradgk_mse.T, gradgk_mse)
 
@@ -102,26 +86,27 @@ def combined_mse(x, W):
 
     return 1/2*mse, gradw_mse
 
+
 def train_LC(training_dataset, W_track, iterations=500, plot_result=False):
     mse_track = []
 
+    true_classes = np.identity(3, dtype=float)
+
     for i in range(iterations):
         mse, gradw_mse = combined_mse(
-            training_dataset, W_track[-1])
-            
+            training_dataset, W_track[-1], true_classes)
+
         W_track = np.append(
-            W_track, [W_track[-1] - alpha * gradw_mse.T], axis=0)  # tricking gradw to match with W (extra transpose)
+            W_track, [W_track[-1] - alpha * gradw_mse], axis=0)  # tricking gradw to match with W (extra transpose)
 
         mse_track.append(mse)
 
-
-            # if (mse > 2):
-            #     print("this class kinda sus:", c)
+        # if (mse > 2):
+        #     print("this class kinda sus:", c)
     print("W: ", W_track[-1])
     if plot_result:
         plt.plot(mse_track)
         plt.show()
-        
 
     return W_track[-1]
 
@@ -164,12 +149,10 @@ W_track[0].fill(0)
 # print(W_track)
 
 
-W_track_final = train_LC(training_dataset, W_track, 2000)
+W_track_final = train_LC(training_dataset, W_track, 2000, True)
 
 print("final W", W_track_final)
 
 confusion_matrix = get_confusion_matrix(W_track_final, training_dataset)
 
 print("Confusion matrix", confusion_matrix)
-
-
