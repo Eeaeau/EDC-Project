@@ -1,5 +1,7 @@
+from inspect import Attribute
 import numpy as np
 from numpy.core.defchararray import array
+from seaborn.palettes import color_palette
 import torch
 from numpy.core.fromnumeric import transpose
 import scipy.stats as stats
@@ -9,16 +11,18 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
-with open('class_1.txt', 'r') as f:
+with open('Iris_TTT4275/class_1.txt', 'r') as f:
     x1all = np.array([[float(num) for num in line.split(',')] for line in f])
 
-with open('class_2.txt', 'r') as f:
+with open('Iris_TTT4275/class_2.txt', 'r') as f:
     x2all = np.array([[float(num) for num in line.split(',')] for line in f])
 
-with open('class_3.txt', 'r') as f:
+with open('Iris_TTT4275/class_3.txt', 'r') as f:
     x3all = np.array([[float(num) for num in line.split(',')] for line in f])
 
-print("x1 len", len(x1all))
+# dataset_pd = pd.read_fwf('Iris_TTT4275\iris.data', widths=[50, 50, 50])
+# print(dataset_pd)
+
 
 # ----------- constants
 num_classes = 3
@@ -30,7 +34,10 @@ testing_size = 20
 
 alpha = .1  # step size
 
-classes = ["Iris-setosa", "Iris-versicolor", "Iris-virginica"] 
+classes = ["Iris-setosa", "Iris-versicolor", "Iris-virginica"]
+
+attributes = ["sepal length", "sepal width",
+              "petal length", "petal width"]
 
 
 # ------------- functions -------
@@ -69,7 +76,7 @@ def combined_mse(x, W, true_class):
             gradgk_mse = g_k - t
             # print("gradgk_mse:", gradgk_mse)
 
-            gradzk_g = g_k*(1-g_k) # elementwise 
+            gradzk_g = g_k*(1-g_k)  # elementwise
             # print("gradzk_g:", gradzk_g)
 
             gradw_zk = x[c, k].reshape(1, num_attributes + 1)  # transposes
@@ -79,7 +86,7 @@ def combined_mse(x, W, true_class):
                 num_classes, 1)  # make two dimentional, such that it can represent a matrix
 
             # print("temp: ", temp)
-            gradw_mse += temp @ gradw_zk # matrix multi
+            gradw_mse += temp @ gradw_zk  # matrix multi
 
             mse += np.matmul(gradgk_mse.T, gradgk_mse)
 
@@ -113,7 +120,7 @@ def train_LC(training_dataset, W_track, total_iterations=500, plot_result=False)
     return W_track[-1]
 
 
-def get_confusion_matrix(W, training_dataset, plot_result = False):
+def get_confusion_matrix(W, training_dataset, plot_result=False):
     confusion_matrix = np.zeros((num_classes, num_classes))
 
     for c in range(num_classes):
@@ -123,7 +130,8 @@ def get_confusion_matrix(W, training_dataset, plot_result = False):
             confusion_matrix[c, prediction] += 1
 
     if plot_result:
-        sns.heatmap(confusion_matrix,  annot=True, square = True, xticklabels = classes, yticklabels = classes)
+        sns.heatmap(confusion_matrix,  annot=True, square=True,
+                    xticklabels=classes, yticklabels=classes)
 
         plt.show()
 
@@ -133,38 +141,55 @@ def get_confusion_matrix(W, training_dataset, plot_result = False):
 def dynamic_alpha(initial_alpha, iteration, total_iterations):
     return initial_alpha*np.exp(-iteration/total_iterations)
 
+
 def calculate_error_rate(confusion_matrix):
-    #TODO: add check for non square matrix
-    dim = np.size(confusion_matrix,0)
-    num_classifications_class = np.zeros((dim), dtype = int)
+    # TODO: add check for non square matrix
+    dim = np.size(confusion_matrix, 0)
+    num_classifications_class = np.zeros((dim), dtype=float)
     error_rate = np.zeros(dim)
 
     for row in range(dim):
         for col in range(dim):
-            num_classifications_class[row] += confusion_matrix[row,col]
+            num_classifications_class[row] += confusion_matrix[row, col]
 
-        error_rate[row] = 1 -  confusion_matrix[row,row]/ num_classifications_class[row]
+        error_rate[row] = 1 - confusion_matrix[row, row] / \
+            num_classifications_class[row]
 
     return error_rate
-        
 
-        
-    
+    # for i in range(dimention):
 
-    #for i in range(dimention):
-        
-        
 
-# ------------- run -------------
+def plot_hist(dataset):
+
+    sns.set_theme(style="darkgrid")
+    fig, axs = plt.subplots(num_attributes)
+
+    for a in range(num_attributes):
+        for c in range(num_classes):
+            axs[a].hist(dataset[c, :, a], bins=10, alpha=0.6)
+            axs[a].set_title(classes[c]+" "+attributes[a])
+    fig.tight_layout(pad=.2)
+
+    # for c in range(num_classes):
+    #     for a in range(num_attributes):
+    #         axs[c, a].hist(dataset[c, :, a], bins=10)
+    #         axs[c, a].set_title(classes[c]+" "+attributes[a])
+    # fig.tight_layout(pad=.2)
+
+    # fig.show()
+    # print(dataset[0, :, 0])
+    # plt.hist(dataset[0, :, 0],)
+    # sns.displot(dataset[0, :, 0])
+    plt.show()
+
+# ----------------------------------------------------------- #
+# -------------------------- run ---------------------------- #
+# ----------------------------------------------------------- #
 
 
 dataset = np.empty((num_classes, num_data, num_attributes+1))
-# dataset[0] = x1all
-# dataset[1] = x2all
-# dataset[2] = x3all
 
-
-dataset[0] = np.array([np.append(data, 1) for data in x1all])
 dataset[0] = np.array([np.append(data, 1) for data in x1all])
 dataset[1] = np.array([np.append(data, 1) for data in x2all])
 dataset[2] = np.array([np.append(data, 1) for data in x3all])
@@ -173,16 +198,22 @@ dataset[2] = np.array([np.append(data, 1) for data in x3all])
 # dataset = [np.append(data, 1) for data in dataset]
 # dataset = np.append(dataset[:, :], 1)
 
-# print("element:", dataset)
+# df = pd.DataFrame(dataset[0])
 
-training_dataset, testing_dataset = split_dataset(dataset, training_size)
+# print("df:", df)
+
+alternative_dataset = np.delete(dataset, 1, axis=2)
+num_attributes = 3
+
+training_dataset, testing_dataset = split_dataset(
+    alternative_dataset, training_size)
 
 W_track = np.full([1, num_classes, num_attributes+1], 0)
 # W_track[0].fill(0)
 # print(W_track)
 
 
-W_track_final = train_LC(training_dataset, W_track, 2000, True)
+W_track_final = train_LC(training_dataset, W_track, 3000, True)
 
 print("final W", W_track_final)
 
@@ -192,3 +223,5 @@ print("Confusion matrix", confusion_matrix)
 
 error_rate = calculate_error_rate(confusion_matrix)
 print("Error rate", error_rate)
+
+plot_hist(alternative_dataset)
