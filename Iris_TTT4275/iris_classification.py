@@ -28,7 +28,7 @@ num_attributes = 4
 training_size = 30
 testing_size = 20
 
-alpha = .05  # step size
+alpha = .1  # step size
 
 
 # ------------- functions -------
@@ -87,17 +87,17 @@ def combined_mse(x, W, true_class):
     return 1/2*mse, gradw_mse
 
 
-def train_LC(training_dataset, W_track, iterations=500, plot_result=False):
+def train_LC(training_dataset, W_track, total_iterations=500, plot_result=False):
     mse_track = []
 
     true_classes = np.identity(3, dtype=float)
 
-    for i in range(iterations):
+    for i in range(total_iterations):
         mse, gradw_mse = combined_mse(
             training_dataset, W_track[-1], true_classes)
 
         W_track = np.append(
-            W_track, [W_track[-1] - alpha * gradw_mse], axis=0)  # tricking gradw to match with W (extra transpose)
+            W_track, [W_track[-1] - dynamic_alpha(alpha, i, total_iterations) * gradw_mse], axis=0)  # tricking gradw to match with W (extra transpose)
 
         mse_track.append(mse)
 
@@ -122,6 +122,10 @@ def get_confusion_matrix(W, training_dataset):
 
     return confusion_matrix
 
+
+def dynamic_alpha(initial_alpha, iteration, total_iterations):
+    return initial_alpha*np.exp(-iteration/(total_iterations))
+
 # ------------- run -------------
 
 
@@ -140,7 +144,7 @@ dataset[2] = np.array([np.append(data, 1) for data in x3all])
 # dataset = [np.append(data, 1) for data in dataset]
 # dataset = np.append(dataset[:, :], 1)
 
-print("element:", dataset)
+# print("element:", dataset)
 
 training_dataset, testing_dataset = split_dataset(dataset, training_size)
 
