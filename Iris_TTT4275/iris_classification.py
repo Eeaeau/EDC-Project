@@ -177,8 +177,8 @@ dataset[2] = np.array([np.append(data, 1) for data in x3all])
 
 training_dataset, testing_dataset = split_dataset(dataset, training_size)
 
-W_track = np.empty([1, num_classes, num_attributes+1])
-W_track[0].fill(0)
+W_track = np.full([1, num_classes, num_attributes+1], 0)
+# W_track[0].fill(0)
 # print(W_track)
 
 

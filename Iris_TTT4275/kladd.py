@@ -22,3 +22,5 @@ print(z.T)
 
 # xy = np.ones(3, 3)
 # xy_transposed = xy
+
+print(np.array([2, 'rer']))
