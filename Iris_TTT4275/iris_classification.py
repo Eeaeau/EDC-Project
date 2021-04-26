@@ -145,7 +145,7 @@ def dynamic_alpha(initial_alpha, iteration, total_iterations):
 def calculate_error_rate(confusion_matrix):
     # TODO: add check for non square matrix
     dim = np.size(confusion_matrix, 0)
-    num_classifications_class = np.zeros((dim), dtype=int)
+    num_classifications_class = np.zeros((dim), dtype=float)
     error_rate = np.zeros(dim)
 
     for row in range(dim):
@@ -160,14 +160,14 @@ def calculate_error_rate(confusion_matrix):
     # for i in range(dimention):
 
 
-def plot_hist():
+def plot_hist(dataset):
 
     sns.set_theme(style="darkgrid")
     fig, axs = plt.subplots(num_attributes)
 
     for a in range(num_attributes):
         for c in range(num_classes):
-            axs[a].hist(dataset[c, :, a], bins=10)
+            axs[a].hist(dataset[c, :, a], bins=10, alpha=0.6)
             axs[a].set_title(classes[c]+" "+attributes[a])
     fig.tight_layout(pad=.2)
 
@@ -178,7 +178,6 @@ def plot_hist():
     # fig.tight_layout(pad=.2)
 
     # fig.show()
-    #  col="species", row="sex"
     # print(dataset[0, :, 0])
     # plt.hist(dataset[0, :, 0],)
     # sns.displot(dataset[0, :, 0])
@@ -190,9 +189,6 @@ def plot_hist():
 
 
 dataset = np.empty((num_classes, num_data, num_attributes+1))
-# dataset[0] = x1all
-# dataset[1] = x2all
-# dataset[2] = x3all
 
 dataset[0] = np.array([np.append(data, 1) for data in x1all])
 dataset[1] = np.array([np.append(data, 1) for data in x2all])
@@ -206,22 +202,26 @@ dataset[2] = np.array([np.append(data, 1) for data in x3all])
 
 # print("df:", df)
 
-training_dataset, testing_dataset = split_dataset(dataset, training_size)
+alternative_dataset = np.delete(dataset, 1, axis=2)
+num_attributes = 3
+
+training_dataset, testing_dataset = split_dataset(
+    alternative_dataset, training_size)
 
 W_track = np.empty([1, num_classes, num_attributes+1])
 W_track[0].fill(0)
 # print(W_track)
 
 
-W_track_final = train_LC(training_dataset, W_track, 2000)
+W_track_final = train_LC(training_dataset, W_track, 3000, True)
 
 print("final W", W_track_final)
 
-confusion_matrix = get_confusion_matrix(W_track_final, testing_dataset)
+confusion_matrix = get_confusion_matrix(W_track_final, testing_dataset, True)
 
 print("Confusion matrix", confusion_matrix)
 
 error_rate = calculate_error_rate(confusion_matrix)
 print("Error rate", error_rate)
 
-plot_hist()
+plot_hist(alternative_dataset)
