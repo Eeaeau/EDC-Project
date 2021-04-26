@@ -74,38 +74,41 @@ def combined_mse(x, t, W):
     mse = 0
 
     N = len(x)
-
     for k in range(N):
+        for c in range(num_classes):
+            if c == 0:
+                t = [1, 0, 0]
+            elif c == 1:
+                t = [0, 1, 0]
+            else:
+                t = [0, 0, 1]
+            g_temp = linear_descriminat_classifier(x[c,k], W)
 
-        g_temp = linear_descriminat_classifier(x[k], W)
+            g_k = sigmoid(g_temp)
+            # print(t)
 
-        g_k = sigmoid(g_temp)
+            gradgk_mse = g_k - t
+            # print("gradgk_mse:", gradgk_mse)
 
-        # print('g: ', g_k)
-        # print(t)
+            gradzk_g = np.multiply(g_k, 1-g_k)
+            # print("gradzk_g:", gradzk_g)
 
-        gradgk_mse = g_k - t
-        # print("gradgk_mse:", gradgk_mse)
+            gradw_zk = x[c, k].reshape(num_attributes + 1, 1)  # transposes
+            # print("gradw_zk: ", gradw_zk)
 
-        gradzk_g = np.multiply(g_k, 1-g_k)
-        # print("gradzk_g:", gradzk_g)
+            temp = np.multiply(gradgk_mse, gradzk_g).reshape(
+                1, num_classes)  # make two dimentional
 
-        gradw_zk = x[k].reshape(num_attributes + 1, 1)  # transposes
-        # print("gradw_zk: ", gradw_zk)
+            gradw_mse += gradw_zk @ temp
 
-        temp = np.multiply(gradgk_mse, gradzk_g).reshape(
-            1, num_classes)  # make two dimentional
-
-        gradw_mse += gradw_zk @ temp
-
-        mse += np.matmul(gradgk_mse.T, gradgk_mse)
+            mse += np.matmul(gradgk_mse.T, gradgk_mse)
 
     # print("gradw_mse", gradw_mse)
 
     return 1/2*mse, gradw_mse
 
-
 def train_LC(training_dataset, W_track, iterations=500):
+    #print("training dataset", training_dataset)
     for i in range(iterations):
         for c in range(num_classes):
             # for k in range(training_size):
@@ -117,17 +120,17 @@ def train_LC(training_dataset, W_track, iterations=500):
 
             if (0 == c):
                 mse, gradw_mse = combined_mse(
-                    training_dataset[c], np.array([1, 0, 0]), W_track[-1])
+                    training_dataset, np.array([1, 0, 0]), W_track[-1])
             elif(1 == c):
                 mse, gradw_mse = combined_mse(
-                    training_dataset[c], np.array([0, 1, 0]), W_track[-1])
+                    training_dataset, np.array([0, 1, 0]), W_track[-1])
             else:
                 mse, gradw_mse = combined_mse(
-                    training_dataset[c], np.array([0, 0, 1]), W_track[-1])
+                    training_dataset, np.array([0, 0, 1]), W_track[-1])
 
             W_track = np.append(
                 W_track, [W_track[-1] - alpha * gradw_mse.T], axis=0)  # tricking gradw to match with W (extra transpose)
-            print(mse)
+            #print(mse)
 
     print("W: ", W_track[-1])
     return W_track[-1]
@@ -187,12 +190,14 @@ W_track[0].fill(.5)
 W_track_final = train_LC(training_dataset, W_track, 2000)
 
 
-print("final W", W_track_final[-1])
+print("final W", W_track_final)
 
 confusion_matrix = get_confusion_matrix(W_track_final, training_dataset)
 
 
 print("Confusion matrix", confusion_matrix)
+
+
 
 
 
