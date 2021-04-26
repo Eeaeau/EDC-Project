@@ -88,6 +88,7 @@ def combined_mse(x, W, true_class):
 
 
 def train_LC(training_dataset, W_track, total_iterations=500, plot_result=False):
+
     mse_track = []
 
     true_classes = np.identity(3, dtype=float)
@@ -124,7 +125,7 @@ def get_confusion_matrix(W, training_dataset):
 
 
 def dynamic_alpha(initial_alpha, iteration, total_iterations):
-    return initial_alpha*np.exp(-iteration/(total_iterations))
+    return initial_alpha*np.exp(-iteration/total_iterations)
 
 # ------------- run -------------
 
