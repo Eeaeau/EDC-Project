@@ -163,13 +163,19 @@ def calculate_error_rate(confusion_matrix):
 def plot_hist():
 
     sns.set_theme(style="darkgrid")
-    fig, axs = plt.subplots(num_classes, num_attributes)
+    fig, axs = plt.subplots(num_attributes)
 
-    for c in range(num_classes):
-        for a in range(num_attributes):
-            axs[c, a].hist(dataset[c, :, a], bins=10)
-            axs[c, a].set_title(classes[c]+" "+attributes[a])
+    for a in range(num_attributes):
+        for c in range(num_classes):
+            axs[a].hist(dataset[c, :, a], bins=10)
+            axs[a].set_title(classes[c]+" "+attributes[a])
     fig.tight_layout(pad=.2)
+
+    # for c in range(num_classes):
+    #     for a in range(num_attributes):
+    #         axs[c, a].hist(dataset[c, :, a], bins=10)
+    #         axs[c, a].set_title(classes[c]+" "+attributes[a])
+    # fig.tight_layout(pad=.2)
 
     # fig.show()
     #  col="species", row="sex"
