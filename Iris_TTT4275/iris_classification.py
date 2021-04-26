@@ -1,12 +1,13 @@
 import numpy as np
 from numpy.core.defchararray import array
 import torch
-# from numpy.core.fromnumeric import transpose
+from numpy.core.fromnumeric import transpose
 import scipy.stats as stats
 from scipy.io import loadmat
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+
 
 with open('Iris_TTT4275\class_1.txt', 'r') as f:
     x1all = np.array([[float(num) for num in line.split(',')] for line in f])
@@ -67,63 +68,71 @@ def combined_mse(x, t, W):
     mse = 0
 
     N = len(x)
-
     for k in range(N):
+        for c in range(num_classes):
+            if c == 0:
+                t = [1, 0, 0]
+            elif c == 1:
+                t = [0, 1, 0]
+            else:
+                t = [0, 0, 1]
+            g_temp = linear_descriminat_classifier(x[c,k], W)
 
-        g_temp = linear_descriminat_classifier(x[k], W)
+            g_k = sigmoid(g_temp)
+            # print(t)
 
-        g_k = sigmoid(g_temp)
+            gradgk_mse = g_k - t
+            # print("gradgk_mse:", gradgk_mse)
 
-        print('g: ', g_k)
-        print(t)
 
-        gradgk_mse = g_k - t
-        print("gradgk_mse:", gradgk_mse)
+            gradzk_g = np.multiply(g_k, 1-g_k)
+            # print("gradzk_g:", gradzk_g)
 
-        gradzk_g = np.multiply(g_k, 1-g_k)
-        # print("gradzk_g:", gradzk_g)
+            gradw_zk = x[c, k].reshape(num_attributes + 1, 1)  # transposes
+            # print("gradw_zk: ", gradw_zk)
 
-        gradw_zk = x[k].reshape(num_attributes + 1, 1)  # transposes
-        # print("gradw_zk: ", gradw_zk)
+            temp = np.multiply(gradgk_mse, gradzk_g).reshape(
+                1, num_classes)  # make two dimentional, such that it can represent a matrix
 
-        temp = np.multiply(gradgk_mse, gradzk_g).reshape(
-            1, num_classes)  # make two dimentional, such that it can represent a matrix
+            gradw_mse += gradw_zk @ temp
 
-        gradw_mse += gradw_zk @ temp
-
-        mse += np.matmul(gradgk_mse.T, gradgk_mse)
+            mse += np.matmul(gradgk_mse.T, gradgk_mse)
 
     # print("gradw_mse", gradw_mse)
 
     return 1/2*mse, gradw_mse
 
-
 def train_LC(training_dataset, W_track, iterations=500, plot_result=False):
     mse_track = []
+
     for i in range(iterations):
         for c in range(num_classes):
 
             if (0 == c):
                 mse, gradw_mse = combined_mse(
-                    training_dataset[c], np.array([1, 0, 0]), W_track[-1])
+                    training_dataset, np.array([1, 0, 0]), W_track[-1])
             elif(1 == c):
                 mse, gradw_mse = combined_mse(
-                    training_dataset[c], np.array([0, 1, 0]), W_track[-1])
+                    training_dataset, np.array([0, 1, 0]), W_track[-1])
             else:
                 mse, gradw_mse = combined_mse(
-                    training_dataset[c], np.array([0, 0, 1]), W_track[-1])
+                    training_dataset, np.array([0, 0, 1]), W_track[-1])
 
             W_track = np.append(
                 W_track, [W_track[-1] - alpha * gradw_mse.T], axis=0)  # tricking gradw to match with W (extra transpose)
+
             mse_track.append(mse)
+
 
             # if (mse > 2):
             #     print("this class kinda sus:", c)
     print("W: ", W_track[-1])
-
     if plot_result:
         plt.plot(mse_track)
         plt.show()
+        
+
+    return W_track[-1]
 
 
 def get_confusion_matrix(W, training_dataset):
@@ -164,11 +173,12 @@ W_track[0].fill(0)
 # print(W_track)
 
 
-train_LC(training_dataset, W_track, 3)
+W_track_final = train_LC(training_dataset, W_track, 2000)
 
-# print(testing_dataset)
+print("final W", W_track_final)
+
+confusion_matrix = get_confusion_matrix(W_track_final, training_dataset)
+
+print("Confusion matrix", confusion_matrix)
 
 
-confusion_matrix = get_confusion_matrix(W_track, training_dataset)
-
-print(confusion_matrix)
