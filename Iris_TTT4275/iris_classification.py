@@ -127,25 +127,12 @@ def train_LC(training_dataset, W_track, iterations=500, plot_result=False):
             # if (mse > 2):
             #     print("this class kinda sus:", c)
     print("W: ", W_track[-1])
-    return W_track[-1]
-
-
-def get_confusion_matrix(W, training_dataset):
-    confusion_matrix = np.zeros((num_classes, num_classes))
-
-    for i in range(testing_size):
-        for c in range(num_classes):
-            prediction = np.argmax(linear_descriminat_classifier(training_dataset[c,i], W))
-            print("prediction", prediction, linear_descriminat_classifier(training_dataset[c,i], W))
-            confusion_matrix[c, prediction] += 1
-
-   
-
     if plot_result:
         plt.plot(mse_track)
         plt.show()
         
-    return confusion_matrix
+
+    return W_track[-1]
 
 
 def get_confusion_matrix(W, training_dataset):
