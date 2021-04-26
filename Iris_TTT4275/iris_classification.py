@@ -9,13 +9,13 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
-with open('Iris_TTT4275\class_1.txt', 'r') as f:
+with open('class_1.txt', 'r') as f:
     x1all = np.array([[float(num) for num in line.split(',')] for line in f])
 
-with open('Iris_TTT4275\class_2.txt', 'r') as f:
+with open('class_2.txt', 'r') as f:
     x2all = np.array([[float(num) for num in line.split(',')] for line in f])
 
-with open('Iris_TTT4275\class_3.txt', 'r') as f:
+with open('class_3.txt', 'r') as f:
     x3all = np.array([[float(num) for num in line.split(',')] for line in f])
 
 print("x1 len", len(x1all))
@@ -29,6 +29,8 @@ training_size = 30
 testing_size = 20
 
 alpha = .1  # step size
+
+classes = ["Iris-setosa", "Iris-versicolor", "Iris-virginica"] 
 
 
 # ------------- functions -------
@@ -51,7 +53,6 @@ def sigmoid(x):
 
 def combined_mse(x, W, true_class):
     gradw_mse = np.zeros((num_classes, num_attributes + 1))
-    # gradw_mse = 0
     mse = 0
 
     N = len(x)
@@ -68,17 +69,17 @@ def combined_mse(x, W, true_class):
             gradgk_mse = g_k - t
             # print("gradgk_mse:", gradgk_mse)
 
-            gradzk_g = np.multiply(g_k, 1-g_k)
+            gradzk_g = g_k*(1-g_k) # elementwise 
             # print("gradzk_g:", gradzk_g)
 
             gradw_zk = x[c, k].reshape(1, num_attributes + 1)  # transposes
             # print("gradw_zk: ", gradw_zk)
 
-            temp = np.multiply(gradgk_mse, gradzk_g).reshape(
+            temp = (gradgk_mse*gradzk_g).reshape(
                 num_classes, 1)  # make two dimentional, such that it can represent a matrix
 
             # print("temp: ", temp)
-            gradw_mse += temp @ gradw_zk
+            gradw_mse += temp @ gradw_zk # matrix multi
 
             mse += np.matmul(gradgk_mse.T, gradgk_mse)
 
@@ -112,7 +113,7 @@ def train_LC(training_dataset, W_track, total_iterations=500, plot_result=False)
     return W_track[-1]
 
 
-def get_confusion_matrix(W, training_dataset):
+def get_confusion_matrix(W, training_dataset, plot_result = False):
     confusion_matrix = np.zeros((num_classes, num_classes))
 
     for c in range(num_classes):
@@ -121,11 +122,38 @@ def get_confusion_matrix(W, training_dataset):
                 linear_descriminat_classifier(training_dataset[c][i], W))
             confusion_matrix[c, prediction] += 1
 
+    if plot_result:
+        sns.heatmap(confusion_matrix,  annot=True, square = True, xticklabels = classes, yticklabels = classes)
+
+        plt.show()
+
     return confusion_matrix
 
 
 def dynamic_alpha(initial_alpha, iteration, total_iterations):
     return initial_alpha*np.exp(-iteration/total_iterations)
+
+def calculate_error_rate(confusion_matrix):
+    #TODO: add check for non square matrix
+    dim = np.size(confusion_matrix,0)
+    num_classifications_class = np.zeros((dim), dtype = int)
+    error_rate = np.zeros(dim)
+
+    for row in range(dim):
+        for col in range(dim):
+            num_classifications_class[row] += confusion_matrix[row,col]
+
+        error_rate[row] = 1 -  confusion_matrix[row,row]/ num_classifications_class[row]
+
+    return error_rate
+        
+
+        
+    
+
+    #for i in range(dimention):
+        
+        
 
 # ------------- run -------------
 
@@ -158,6 +186,9 @@ W_track_final = train_LC(training_dataset, W_track, 2000, True)
 
 print("final W", W_track_final)
 
-confusion_matrix = get_confusion_matrix(W_track_final, training_dataset)
+confusion_matrix = get_confusion_matrix(W_track_final, testing_dataset, True)
 
 print("Confusion matrix", confusion_matrix)
+
+error_rate = calculate_error_rate(confusion_matrix)
+print("Error rate", error_rate)
