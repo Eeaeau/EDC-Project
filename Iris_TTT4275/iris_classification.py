@@ -1,12 +1,12 @@
 import numpy as np
 from numpy.core.defchararray import array
-import torch
-from numpy.core.fromnumeric import transpose
-import scipy.stats as stats
-from scipy.io import loadmat
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
+#import torch
+#from numpy.core.fromnumeric import transpose
+#import scipy.stats as stats
+#from scipy.io import loadmat
+#import pandas as pd
+#import seaborn as sns
+#import matplotlib.pyplot as plt
 
 
 with open('Iris_TTT4275\class_1.txt', 'r') as f:
@@ -62,7 +62,7 @@ def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
 
-def combined_mse(x, t, W):
+def combined_mse(x, W):
     # gradw_mse = np.zeros(num_classes)
     gradw_mse = 0
     mse = 0
@@ -106,22 +106,13 @@ def train_LC(training_dataset, W_track, iterations=500, plot_result=False):
     mse_track = []
 
     for i in range(iterations):
-        for c in range(num_classes):
+        mse, gradw_mse = combined_mse(
+            training_dataset, W_track[-1])
+            
+        W_track = np.append(
+            W_track, [W_track[-1] - alpha * gradw_mse.T], axis=0)  # tricking gradw to match with W (extra transpose)
 
-            if (0 == c):
-                mse, gradw_mse = combined_mse(
-                    training_dataset, np.array([1, 0, 0]), W_track[-1])
-            elif(1 == c):
-                mse, gradw_mse = combined_mse(
-                    training_dataset, np.array([0, 1, 0]), W_track[-1])
-            else:
-                mse, gradw_mse = combined_mse(
-                    training_dataset, np.array([0, 0, 1]), W_track[-1])
-
-            W_track = np.append(
-                W_track, [W_track[-1] - alpha * gradw_mse.T], axis=0)  # tricking gradw to match with W (extra transpose)
-
-            mse_track.append(mse)
+        mse_track.append(mse)
 
 
             # if (mse > 2):
