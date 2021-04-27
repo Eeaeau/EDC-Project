@@ -6,10 +6,17 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 import torch
-from kmeans_pytorch import kmeans
+# from kmeans_pytorch import SoftDTW
+# from kmeans_pytorch import kmeans
 import math
 
+
+from kmeans_pytorch import kmeans
+
+# constants 
+
 mat_contents = sio.loadmat("MNist_ttt4275/data_all.mat")
+
 
 
 # ----------------------------- functions -------------------------------- #
@@ -40,11 +47,11 @@ def knn(reference_images, labels, image, k):
     return [np.argmax(count_neighbors), avrage_distance]
 
 
-def partition_data_set(data_set, data_labels, num_clusters=64, use_tensor=False):
+def partition_data_set(data_set, data_labels, num_clusters=64, use_tensor=True):
 
     data_set_partitions = []
 
-    numbers = [[number] for number in range(5)]
+    numbers = [[number] for number in range(2)]
 
     for number in numbers:
         label_indices = np.where(data_labels == number)[0]
@@ -60,7 +67,7 @@ def partition_data_set(data_set, data_labels, num_clusters=64, use_tensor=False)
 
             # kmeans
             cluster_ids_x, cluster_centers = kmeans(
-                X=dataset_tensor, num_clusters=num_clusters, distance='euclidean', tol=0.01, device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu"))
+                X=dataset_tensor, num_clusters=num_clusters, distance='euclidean', tol=0.0001, device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu"))
             print("cluster_centers: ", cluster_centers)
 
             data_set_partitions.append([cluster_ids_x, cluster_centers])
@@ -144,11 +151,17 @@ def plot_image(dataset, data_labels, start_index, end_index):
 partition = partition_data_set(
     mat_contents['trainv'], mat_contents['trainlab'], 64, True)
 
-print("partition: ", partition[:][0])
+print("partition: ", partition[:][0][0])
 
+partition_cpu = np.array([element.detach().to('cpu').numpy() for element in partition[:][0][1]])
+
+print("partition_cpu: ", partition_cpu)
+# .detach().to('cpu').numpy()
 # conf_mat = get_confusion_matrix(mat_contents['trainv'], mat_contents['trainlab'], mat_contents['testv'][0:30] , mat_contents['testlab'][0:30], True)
 # print(conf_mat)
 
 # plot_image(mat_contents['trainv'], mat_contents['trainlab'], 0, 7)
 
 print(":)")
+
+
