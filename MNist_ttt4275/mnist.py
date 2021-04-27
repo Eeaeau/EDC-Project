@@ -44,7 +44,7 @@ def partition_data_set(data_set, data_labels, num_clusters=64, use_tensor=False)
 
     data_set_partitions = []
 
-    numbers = [[number] for number in range(1)]
+    numbers = [[number] for number in range(5)]
 
     for number in numbers:
         label_indices = np.where(data_labels == number)[0]
@@ -144,7 +144,7 @@ def plot_image(dataset, data_labels, start_index, end_index):
 partition = partition_data_set(
     mat_contents['trainv'], mat_contents['trainlab'], 64, True)
 
-print("partition: ", partition[0][1])
+print("partition: ", partition[:][0])
 
 # conf_mat = get_confusion_matrix(mat_contents['trainv'], mat_contents['trainlab'], mat_contents['testv'][0:30] , mat_contents['testlab'][0:30], True)
 # print(conf_mat)
