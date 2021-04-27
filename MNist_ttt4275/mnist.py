@@ -34,7 +34,7 @@ def knn(reference_images, labels, image, k):
         count_neighbors[neighbor[1][0]] += 1
         total_distance += neighbor[0]
     
-    avrage_distance = total_distance/10
+    avrage_distance = total_distance/k
 
     return [np.argmax(count_neighbors), avrage_distance]
 
@@ -138,7 +138,7 @@ print(np.shape(mat_contents['testv']))
 #partition = partition_data_set(mat_contents['trainv'], mat_contents['trainlab'], 64)
 #print(partition)
 
-conf_mat = get_confusion_matrix(mat_contents['trainv'], mat_contents['trainlab'], mat_contents['testv'][0:5] , mat_contents['testlab'][0:5], True)
+conf_mat = get_confusion_matrix(mat_contents['trainv'], mat_contents['trainlab'], mat_contents['testv'][0:30] , mat_contents['testlab'][0:30], True)
 print(conf_mat)
 
 plot_image(mat_contents['trainv'], mat_contents['trainlab'], 0, 6)
