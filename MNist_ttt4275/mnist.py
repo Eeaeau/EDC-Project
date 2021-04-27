@@ -42,21 +42,20 @@ def knn(reference_images, labels, image, k):
 
 def partition_data_set(data_set, data_labels, num_clusters=64, use_tensor=False):
 
-    if use_tensor:
-        # data
+    data_set_partitions = []
 
-        #print("Label indices", label_indices)
-        data_set_partitions = []
+    numbers = [[number] for number in range(1)]
 
-        numbers = [[number] for number in range(2)]
+    for number in numbers:
+        label_indices = np.where(data_labels == number)[0]
 
-        for number in numbers:
-            label_indices = np.where(data_labels == number)[0]
+        label_data = data_set[label_indices]
+        print("dataset_tensor shape: ", np.shape(label_data))
 
-            label_data = data_set[label_indices]
-            print("dataset_tensor shape: ", np.shape(label_data))
+        # torch method using tensor
+        if use_tensor:
+
             dataset_tensor = torch.from_numpy(label_data)
-
             print("dataset_tensor: ", dataset_tensor)
 
             # kmeans
@@ -64,28 +63,16 @@ def partition_data_set(data_set, data_labels, num_clusters=64, use_tensor=False)
                 X=dataset_tensor, num_clusters=num_clusters, distance='euclidean', tol=0.01, device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu"))
             print("cluster_centers: ", cluster_centers)
 
-            data_set_partitions.append(cluster_ids_x, cluster_centers)
+            data_set_partitions.append([cluster_ids_x, cluster_centers])
 
-        return data_set_partitions
-
-    else:
-
-        data_set_partitions = []
-
-        numbers = [[number] for number in range(2)]
-
-        for number in numbers:
-
-            label_indices = np.where(data_labels == number)[0]
-
-            #print("Label indices", label_indices)
-            label_data = data_set[label_indices]
+        # sklearn method using numpy array
+        else:
 
             cluster = KMeans(n_clusters=num_clusters).fit(
                 label_data).cluster_centers_
             data_set_partitions.append([number, cluster])
 
-        return data_set_partitions
+    return data_set_partitions
 
 
 def get_confusion_matrix(training_data, training_labels, test_data, test_labels, plot_result=False):
@@ -157,7 +144,7 @@ def plot_image(dataset, data_labels, start_index, end_index):
 partition = partition_data_set(
     mat_contents['trainv'], mat_contents['trainlab'], 64, True)
 
-print("partition: ", partition)
+print("partition: ", partition[0][1])
 
 # conf_mat = get_confusion_matrix(mat_contents['trainv'], mat_contents['trainlab'], mat_contents['testv'][0:30] , mat_contents['testlab'][0:30], True)
 # print(conf_mat)

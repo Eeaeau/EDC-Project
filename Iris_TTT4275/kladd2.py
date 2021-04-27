@@ -13,5 +13,5 @@ cluster_ids_x, cluster_centers = kmeans(
     X=x, num_clusters=num_clusters, distance='euclidean', device=torch.device('cuda:0')
 )
 
-print(cluster_ids_x)
-print(cluster_centers)
+print("cluster_ids_x: ", cluster_ids_x)
+print("cluster_centers: ", cluster_centers)
