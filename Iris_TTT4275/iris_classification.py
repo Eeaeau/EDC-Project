@@ -95,7 +95,7 @@ def combined_mse(x, W, true_class):
     return 1/2*mse, gradw_mse
 
 
-def train_LC(training_dataset, W_track, total_iterations=500, plot_result=False):
+def train_LC(training_dataset, W_track, alpha=alpha, total_iterations=500, plot_result=False):
 
     mse_track = []
 
@@ -115,7 +115,7 @@ def train_LC(training_dataset, W_track, total_iterations=500, plot_result=False)
     print("W: ", W_track[-1])
     if plot_result:
         plt.plot(mse_track)
-        plt.show()
+        # plt.show()
 
     return W_track[-1]
 
@@ -139,7 +139,7 @@ def get_confusion_matrix(W, training_dataset, plot_result=False):
 
 
 def dynamic_alpha(initial_alpha, iteration, total_iterations):
-    return initial_alpha*np.exp(-iteration/total_iterations)
+    return initial_alpha*np.exp(-iteration/(2*total_iterations))
 
 
 def calculate_error_rate(confusion_matrix):
@@ -163,14 +163,20 @@ def calculate_error_rate(confusion_matrix):
 def plot_hist(dataset):
 
     sns.set_theme(style="darkgrid")
-    fig, axs = plt.subplots(num_attributes)
+    fig, axs = plt.subplots(2, 2)
 
+    row = 0
     for a in range(num_attributes):
         for c in range(num_classes):
-            axs[a].hist(dataset[c, :, a], bins=10, alpha=0.6)
-            axs[a].set_title(classes[c]+" "+attributes[a])
+            axs[a % 2, row].hist(dataset[c, :, a], bins=12, alpha=0.7)
+            axs[a % 2, row].set_title(attributes[a])
+            axs[a % 2, row].set_xlabel('cm')
+            axs[a % 2, row].set_ylabel('Number of instances')
+        axs[a % 2, row].legend(classes, loc='upper right')
+        if a == 1:
+            row += 1
+    fig.set_size_inches(3*3, 2*3)
     fig.tight_layout(pad=.2)
-
     # for c in range(num_classes):
     #     for a in range(num_attributes):
     #         axs[c, a].hist(dataset[c, :, a], bins=10)
@@ -183,45 +189,64 @@ def plot_hist(dataset):
     # sns.displot(dataset[0, :, 0])
     plt.show()
 
+
+def reduce_dataset_attributes(removed_attribute_indexs):
+
+    alternative_dataset = np.delete(dataset, removed_attribute_indexs, axis=2)
+    num_attributes = len(removed_attribute_indexs)
+
+    return alternative_dataset, num_attributes
+
+
+def format_dataset(datasets):
+    formated_dataset = np.empty((num_classes, num_data, num_attributes+1))
+
+    joined_dataset = np.stack(datasets, axis=0)
+    print("dataset:", formated_dataset)
+
+    for c in range(len(datasets)):
+        formated_dataset[c] = np.array([np.append(data, 1)
+                                        for data in joined_dataset[c]])
+
+    # dataset[0] = np.array([np.append(data, 1) for data in x1all])
+
+    # dataset[1] = np.array([np.append(data, 1) for data in x2all])
+    # dataset[2] = np.array([np.append(data, 1) for data in x3all])
+
+    return formated_dataset
+
 # ----------------------------------------------------------- #
 # -------------------------- run ---------------------------- #
 # ----------------------------------------------------------- #
 
 
-dataset = np.empty((num_classes, num_data, num_attributes+1))
+dataset = format_dataset([x1all, x2all, x3all])
 
-dataset[0] = np.array([np.append(data, 1) for data in x1all])
-dataset[1] = np.array([np.append(data, 1) for data in x2all])
-dataset[2] = np.array([np.append(data, 1) for data in x3all])
-# for class in range(3):
+# set alternative dataset with reduced number of attributes
+# alternative_dataset, num_attributes = reduce_dataset_attributes([1])
 
-# dataset = [np.append(data, 1) for data in dataset]
-# dataset = np.append(dataset[:, :], 1)
-
-# df = pd.DataFrame(dataset[0])
-
-# print("df:", df)
-
-alternative_dataset = np.delete(dataset, 1, axis=2)
-num_attributes = 3
+# plot histograms
+# plot_hist(dataset)
+# plot_hist(alternative_dataset)
 
 training_dataset, testing_dataset = split_dataset(
-    alternative_dataset, training_size)
+    dataset, training_size)
 
 W_track = np.full([1, num_classes, num_attributes+1], 0)
-# W_track[0].fill(0)
-# print(W_track)
 
+alphas = [0.5, 0.2, 0.1, 0.05, 0.01]
 
-W_track_final = train_LC(training_dataset, W_track, 3000, True)
+for alpha in alphas:
 
+    W_track_final = train_LC(training_dataset, W_track,
+                             alpha=alpha, total_iterations=4000, plot_result=True)
+plt.legend(alphas)
+plt.show()
 print("final W", W_track_final)
 
-confusion_matrix = get_confusion_matrix(W_track_final, testing_dataset, True)
+# confusion_matrix = get_confusion_matrix(W_track_final, testing_dataset, True)
 
-print("Confusion matrix", confusion_matrix)
+# print("Confusion matrix", confusion_matrix)
 
-error_rate = calculate_error_rate(confusion_matrix)
-print("Error rate", error_rate)
-
-plot_hist(alternative_dataset)
+# error_rate = calculate_error_rate(confusion_matrix)
+# print("Error rate", error_rate)
