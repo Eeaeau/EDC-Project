@@ -95,7 +95,7 @@ def combined_mse(x, W, true_class):
     return 1/2*mse, gradw_mse
 
 
-def train_LC(training_dataset, W_track, alpha=alpha, total_iterations=500, plot_result=False):
+def train_LC(training_dataset, W_track, alpha=alpha, total_iterations=500, use_dynamic_alpha=True, plot_result=False):
 
     mse_track = []
 
@@ -106,7 +106,7 @@ def train_LC(training_dataset, W_track, alpha=alpha, total_iterations=500, plot_
             training_dataset, W_track[-1], true_classes)
 
         W_track = np.append(
-            W_track, [W_track[-1] - dynamic_alpha(alpha, i, total_iterations) * gradw_mse], axis=0)  # tricking gradw to match with W (extra transpose)
+            W_track, [W_track[-1] - (dynamic_alpha(alpha, i, total_iterations) if use_dynamic_alpha else alpha) * gradw_mse], axis=0)  # tricking gradw to match with W (extra transpose)
 
         mse_track.append(mse)
 
@@ -115,6 +115,8 @@ def train_LC(training_dataset, W_track, alpha=alpha, total_iterations=500, plot_
     print("W: ", W_track[-1])
     if plot_result:
         plt.plot(mse_track)
+        plt.xlabel("Iterations")
+        plt.ylabel("MSE")
         # plt.show()
 
     return W_track[-1]
@@ -139,7 +141,7 @@ def get_confusion_matrix(W, training_dataset, plot_result=False):
 
 
 def dynamic_alpha(initial_alpha, iteration, total_iterations):
-    return initial_alpha*np.exp(-iteration/(2*total_iterations))
+    return initial_alpha*np.exp(-iteration/(1*total_iterations))
 
 
 def calculate_error_rate(confusion_matrix):
@@ -202,7 +204,6 @@ def format_dataset(datasets):
     formated_dataset = np.empty((num_classes, num_data, num_attributes+1))
 
     joined_dataset = np.stack(datasets, axis=0)
-    print("dataset:", formated_dataset)
 
     for c in range(len(datasets)):
         formated_dataset[c] = np.array([np.append(data, 1)
@@ -236,17 +237,25 @@ W_track = np.full([1, num_classes, num_attributes+1], 0)
 
 alphas = [0.5, 0.2, 0.1, 0.05, 0.01]
 
+fig = plt.figure(figsize=(16/2, 9/2))
+sns.set_theme(style="darkgrid")
 for alpha in alphas:
 
     W_track_final = train_LC(training_dataset, W_track,
-                             alpha=alpha, total_iterations=4000, plot_result=True)
-plt.legend(alphas)
-plt.show()
-print("final W", W_track_final)
+                             alpha=alpha, total_iterations=1000, plot_result=True)
+# for alpha in alphas:
 
-# confusion_matrix = get_confusion_matrix(W_track_final, testing_dataset, True)
+#     W_track_final = train_LC(training_dataset, W_track,
+#                              alpha=alpha, total_iterations=1000, use_dynamic_alpha=False,  plot_result=True)
+
+plt.legend(["alpha = "+str(alpha) for alpha in alphas], loc="upper right")
+plt.show()
+
+# confusion_matrix = get_confusion_matrix(
+#     W_track_final, testing_dataset, True)
 
 # print("Confusion matrix", confusion_matrix)
 
 # error_rate = calculate_error_rate(confusion_matrix)
 # print("Error rate", error_rate)
+# print("final W", W_track_final)
