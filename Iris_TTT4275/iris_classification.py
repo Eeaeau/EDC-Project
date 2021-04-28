@@ -9,6 +9,7 @@ from scipy.io import loadmat
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 
 
 with open('Iris_TTT4275/class_1.txt', 'r') as f:
@@ -122,7 +123,7 @@ def train_LC(training_dataset, W_track, alpha=alpha, total_iterations=500, use_d
     return W_track[-1]
 
 
-def get_confusion_matrix(W, training_dataset, plot_result=False):
+def get_confusion_matrix(W, training_dataset, alpha=alpha, plot_result=False):
     confusion_matrix = np.zeros((num_classes, num_classes))
 
     for c in range(num_classes):
@@ -132,8 +133,21 @@ def get_confusion_matrix(W, training_dataset, plot_result=False):
             confusion_matrix[c, prediction] += 1
 
     if plot_result:
-        sns.heatmap(confusion_matrix,  annot=True, square=True,
-                    xticklabels=classes, yticklabels=classes)
+        sns.set_theme(style="darkgrid")
+        fig, ax = plt.subplots(figsize=(5, 5))
+
+        sns.heatmap(confusion_matrix,  annot=True, square=True)
+
+        ax.xaxis.tick_bottom()
+        plt.xticks(np.arange(3) + .5, rotation=45, labels=classes)
+        ax.yaxis.tick_left()
+        plt.yticks(np.arange(3) + .5, rotation=45, labels=classes)
+
+        # axis labels
+        plt.xlabel('Class')
+        plt.ylabel('Class')
+
+        plt.title('alpha='+str(alpha))
 
         plt.show()
 
@@ -235,27 +249,27 @@ training_dataset, testing_dataset = split_dataset(
 
 W_track = np.full([1, num_classes, num_attributes+1], 0)
 
-alphas = [0.5, 0.2, 0.1, 0.05, 0.01]
+alphas = [0.5, 0.1, 0.05, 0.01]
 
-fig = plt.figure(figsize=(16/2, 9/2))
-sns.set_theme(style="darkgrid")
-for alpha in alphas:
-
-    W_track_final = train_LC(training_dataset, W_track,
-                             alpha=alpha, total_iterations=1000, plot_result=True)
+# fig = plt.figure(figsize=(16/2, 9/2))
+# sns.set_theme(style="darkgrid")
 # for alpha in alphas:
 
 #     W_track_final = train_LC(training_dataset, W_track,
-#                              alpha=alpha, total_iterations=1000, use_dynamic_alpha=False,  plot_result=True)
+#  alpha=alpha, total_iterations=1000, plot_result=True)
+for alpha in alphas:
 
-plt.legend(["alpha = "+str(alpha) for alpha in alphas], loc="upper right")
-plt.show()
+    W_track_final = train_LC(training_dataset, W_track,
+                             alpha=alpha, total_iterations=1000, use_dynamic_alpha=False,  plot_result=False)
 
-# confusion_matrix = get_confusion_matrix(
-#     W_track_final, testing_dataset, True)
+# plt.legend(["alpha = "+str(alpha) for alpha in alphas], loc="upper right")
+# plt.show()
 
-# print("Confusion matrix", confusion_matrix)
+    confusion_matrix = get_confusion_matrix(
+        W_track_final, testing_dataset, alpha, True)
 
-# error_rate = calculate_error_rate(confusion_matrix)
-# print("Error rate", error_rate)
-# print("final W", W_track_final)
+    print("Confusion matrix", confusion_matrix)
+
+    error_rate = calculate_error_rate(confusion_matrix)
+    print("Error rate", error_rate)
+    print("final W", W_track_final)
