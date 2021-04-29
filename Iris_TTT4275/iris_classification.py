@@ -96,20 +96,25 @@ def combined_mse(x, W, true_class):
     return 1/2*mse, gradw_mse
 
 
-def train_LC(training_dataset, W_track, alpha=alpha, total_iterations=500, use_dynamic_alpha=True, plot_result=False):
+def train_LC(training_dataset, W_track, alpha=alpha, mse_threshold=0.001, max_iterations=500, use_dynamic_alpha=True, plot_result=False):
 
     mse_track = []
 
     true_classes = np.identity(3, dtype=float)
 
-    for i in range(total_iterations):
+    i = 0
+    mse = mse_threshold+1
+
+    while((i < max_iterations) & (mse > mse_threshold)):
         mse, gradw_mse = combined_mse(
             training_dataset, W_track[-1], true_classes)
 
         W_track = np.append(
-            W_track, [W_track[-1] - (dynamic_alpha(alpha, i, total_iterations) if use_dynamic_alpha else alpha) * gradw_mse], axis=0)  # tricking gradw to match with W (extra transpose)
+            W_track, [W_track[-1] - (dynamic_alpha(alpha, i, max_iterations) if use_dynamic_alpha else alpha) * gradw_mse], axis=0)  # tricking gradw to match with W (extra transpose)
 
         mse_track.append(mse)
+
+        i += 1
 
         # if (mse > 2):
         #     print("this class kinda sus:", c)
@@ -251,8 +256,8 @@ W_track = np.full([1, num_classes, num_attributes+1], 0)
 
 alphas = [0.5, 0.1, 0.05, 0.01]
 
-# fig = plt.figure(figsize=(16/2, 9/2))
-# sns.set_theme(style="darkgrid")
+fig = plt.figure(figsize=(16/2, 9/2))
+sns.set_theme(style="darkgrid")
 # for alpha in alphas:
 
 #     W_track_final = train_LC(training_dataset, W_track,
@@ -260,16 +265,16 @@ alphas = [0.5, 0.1, 0.05, 0.01]
 for alpha in alphas:
 
     W_track_final = train_LC(training_dataset, W_track,
-                             alpha=alpha, total_iterations=1000, use_dynamic_alpha=False,  plot_result=False)
+                             alpha=alpha, mse_threshold=0.5, max_iterations=10000, use_dynamic_alpha=False,  plot_result=True)
 
-# plt.legend(["alpha = "+str(alpha) for alpha in alphas], loc="upper right")
-# plt.show()
+plt.legend(["alpha = "+str(alpha) for alpha in alphas], loc="upper right")
+plt.show()
 
-    confusion_matrix = get_confusion_matrix(
-        W_track_final, testing_dataset, alpha, True)
+# confusion_matrix = get_confusion_matrix(
+#     W_track_final, testing_dataset, alpha, True)
 
-    print("Confusion matrix", confusion_matrix)
+# print("Confusion matrix", confusion_matrix)
 
-    error_rate = calculate_error_rate(confusion_matrix)
-    print("Error rate", error_rate)
-    print("final W", W_track_final)
+# error_rate = calculate_error_rate(confusion_matrix)
+# print("Error rate", error_rate)
+# print("final W", W_track_final)
