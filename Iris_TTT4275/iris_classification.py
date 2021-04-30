@@ -1,12 +1,4 @@
-from inspect import Attribute
 import numpy as np
-from numpy.core.defchararray import array
-from seaborn.palettes import color_palette
-import torch
-from numpy.core.fromnumeric import transpose
-import scipy.stats as stats
-from scipy.io import loadmat
-import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -219,9 +211,9 @@ def reduce_dataset_attributes(dataset, removed_attribute_indexs):
     # get current number of attributes compensated for extra dimmetion added
     current_num_attributes = np.size(dataset, axis=2) - 1
 
-    print("Number of attributes is now: ", current_num_attributes)
-
     num_attributes = current_num_attributes - len(removed_attribute_indexs)
+
+    print("Number of attributes is now: ", num_attributes)
 
     return reduced_dataset, num_attributes
 
@@ -259,7 +251,6 @@ for removed in features_to_remove:
     # set alternative dataset with reduced number of attributes
     alternative_dataset, num_attributes = reduce_dataset_attributes(
         dataset, removed)
-    print("num_attributes: ", num_attributes)
 
     W_track = np.full([1, num_classes, num_attributes+1], 0)
 

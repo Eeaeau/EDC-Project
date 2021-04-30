@@ -1,27 +1,22 @@
 import scipy.io as sio
 import numpy as np
 from scipy.spatial import distance
-import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 import torch
-# from kmeans_pytorch import SoftDTW
-# from kmeans_pytorch import kmeans
 import math
-
-
 from kmeans_pytorch import kmeans
 
-# constants 
-
+# ----------------------------- constants -------------------------------- #
 mat_contents = sio.loadmat("MNist_ttt4275/data_all.mat")
 
+num_clusters = 64
 
 
 # ----------------------------- functions -------------------------------- #
 
-def knn(reference_images, labels, image, k, use_tensor = False):
+def knn(reference_images, labels, image, k, use_tensor=False):
     neighbor_distance_and_indices = []
 
     if(use_tensor):
@@ -29,7 +24,8 @@ def knn(reference_images, labels, image, k, use_tensor = False):
         for i in range(len(reference_images)):
             # same as norm(2) (reference_images[i] - image)
             print(image)
-            dst = torch.cdist(torch.transpose(reference_images[i], 0, 1), torch.reshape(image,(28*28,1)))
+            dst = torch.cdist(torch.transpose(
+                reference_images[i], 0, 1), torch.reshape(image, (28*28, 1)))
             #dst = sum((reference_images - image)**2)
             neighbor_distance_and_indices.append((dst, labels[i]))
 
@@ -49,7 +45,7 @@ def knn(reference_images, labels, image, k, use_tensor = False):
         avrage_distance = total_distance/k
 
         return [torch.argmax(count_neighbors), avrage_distance]
-        
+
     else:
         for i in range(len(reference_images)):
             # same as norm(2) (reference_images[i] - image)
@@ -110,14 +106,15 @@ def partition_data_set(data_set, data_labels, num_clusters=64, use_tensor=True):
     return data_set_partitions
 
 
-def get_confusion_matrix(training_data, training_labels, test_data, test_labels, use_tensor = False, plot_result = False):
+def get_confusion_matrix(training_data, training_labels, test_data, test_labels, use_tensor=False, plot_result=False):
 
     confusion_matrix = np.zeros([10, 10])
 
     for i in range(len(test_data)):
         # print(test_labels[i][0])
 
-        prediction = knn(training_data, training_labels, test_data[i], 1, use_tensor)
+        prediction = knn(training_data, training_labels,
+                         test_data[i], 1, use_tensor)
         confusion_matrix[test_labels[i][0]][prediction[0]] += 1
         print(confusion_matrix)
 
@@ -145,7 +142,7 @@ def plot_image(dataset, data_labels, start_index, end_index):
     for i in range(image_count):
 
         axs[row % nrows, cols % ncols].imshow(
-            dataset[i+ start_index].reshape(28, 28), interpolation='none')
+            dataset[i + start_index].reshape(28, 28), interpolation='none')
 
         axs[row % nrows, cols % ncols].set_title(
             "Number "+str(data_labels[i][0]))
@@ -162,11 +159,10 @@ def plot_image(dataset, data_labels, start_index, end_index):
 
     fig.tight_layout(pad=.2)
 
-    # plt.imshow(mat_contents['testv'][0].reshape(28,28), interpolation='bicubic')
     plt.show()
 
+
 def format_partition_data_cpu(partition, num_clusters):
-    
 
     partitioned_data_set = []
 
@@ -174,7 +170,7 @@ def format_partition_data_cpu(partition, num_clusters):
         for row in matrix:
             partitioned_data_set.append(row)
 
-    #print(partitioned_data_set)
+    # print(partitioned_data_set)
 
     partition_labels = []
     for i in range(10):
@@ -196,27 +192,23 @@ def format_partition_data_cpu(partition, num_clusters):
 # print(np.shape(mat_contents['testv']))
 #get_confusion_matrix(mat_contents['trainv'], mat_contents['trainlab'], mat_contents['testv'][0:1000], mat_contents['testlab'][0:1000], True)
 
-#partition = partition_data_set(
+# partition = partition_data_set(
 #   mat_contents['trainv'], mat_contents['trainlab'], 64, True)
 plot_image(mat_contents['trainv'], mat_contents['trainlab'], 0+4*2, 4+4*2)
-"""
-num_clusters = 64
+
+
 partition = partition_data_set(
     mat_contents['trainv'], mat_contents['trainlab'], num_clusters, False)
 partition_data_set, partition_labels = format_partition_data_cpu(partition, 64)
 
-get_confusion_matrix(partition_data_set, partition_labels, mat_contents['testv'], mat_contents['testlab'], False, True)
+get_confusion_matrix(partition_data_set, partition_labels,
+                     mat_contents['testv'], mat_contents['testlab'], False, True)
 #print("partition: ", partition[:][1][1])
 
 
 partition_cpu = []
 partition = partition_data_set(
     mat_contents['trainv'], mat_contents['trainlab'], 64, True)
-
-print("partition: ", len(partition))
-print("partition: ", len(partition[0]))
-print("partition: ", len(partition[0][1]))
-print("partition: ", len(partition[:][1][1][0]))
 
 print(partition[1][1][0])
 cuda_partition_data_set = []
@@ -230,15 +222,16 @@ for i in range(10):
     for j in range(64):
         partition_labels.append(i)
 
-get_confusion_matrix(cuda_partition_data_set, partition_labels, torch.tensor((mat_contents['testv'])), mat_contents['testlab'], True, True)
+get_confusion_matrix(cuda_partition_data_set, partition_labels, torch.tensor(
+    (mat_contents['testv'])), mat_contents['testlab'], True, True)
 
-#for p in partition:
-    #partition_cpu.append([1].detach().to('cpu').numpy())
-    # partition_cpu.append([element.detach().to('cpu').numpy() for element in partition[:][1][1]])
+# for p in partition:
+# partition_cpu.append([1].detach().to('cpu').numpy())
+# partition_cpu.append([element.detach().to('cpu').numpy() for element in partition[:][1][1]])
 
 #partition_cpu = np.array(partition_cpu)
 
-#vil ha datasett på formen [[cluster_0_for tallet 0],[cluster_1_for tallet 0], (...) [cluster_63_for tallet 0], (...) [cluster_0_for tallet 9], [cluster_63_for tallet 0]]
+# vil ha datasett på formen [[cluster_0_for tallet 0],[cluster_1_for tallet 0], (...) [cluster_63_for tallet 0], (...) [cluster_0_for tallet 9], [cluster_63_for tallet 0]]
 
 print("partition_cpu shape: ", np.shape(partition_cpu))
 
@@ -248,7 +241,3 @@ print("partition_cpu: ", partition_cpu)
 # print(conf_mat)
 
 # plot_image(mat_contents['trainv'], mat_contents['trainlab'], 0, 7)
-
-print(":)")
-
-"""
