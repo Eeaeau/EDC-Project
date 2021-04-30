@@ -9,7 +9,6 @@ from scipy.io import loadmat
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
 
 
 with open('Iris_TTT4275/class_1.txt', 'r') as f:
@@ -33,7 +32,7 @@ num_attributes = 4
 training_size = 30
 testing_size = 20
 
-alpha = .1  # step size
+alpha = .01  # step size
 
 classes = ["Iris-setosa", "Iris-versicolor", "Iris-virginica"]
 
@@ -96,34 +95,36 @@ def combined_mse(x, W, true_class):
     return 1/2*mse, gradw_mse
 
 
-def train_LC(training_dataset, W_track, alpha=alpha, mse_threshold=0.001, max_iterations=500, use_dynamic_alpha=True, plot_result=False):
+def train_LC(training_dataset, W_track, alpha=alpha, grad_mse_threshold=0.001, max_iterations=500, use_dynamic_alpha=True, plot_result=False):
 
     mse_track = []
 
-    true_classes = np.identity(3, dtype=float)
+    true_classes = np.identity(num_classes, dtype=float)
 
     i = 0
-    mse = mse_threshold+1
 
-    while((i < max_iterations) & (mse > mse_threshold)):
+    gradw_mse = np.full(
+        (num_classes, num_attributes + 1), grad_mse_threshold+1)
+
+    while((i < max_iterations) & ~((np.absolute(gradw_mse) < grad_mse_threshold).all())):
         mse, gradw_mse = combined_mse(
             training_dataset, W_track[-1], true_classes)
 
         W_track = np.append(
-            W_track, [W_track[-1] - (dynamic_alpha(alpha, i, max_iterations) if use_dynamic_alpha else alpha) * gradw_mse], axis=0)  # tricking gradw to match with W (extra transpose)
+            W_track, [W_track[-1] - (dynamic_alpha(alpha, i, max_iterations) if use_dynamic_alpha else alpha) * gradw_mse], axis=0)
 
         mse_track.append(mse)
 
         i += 1
 
-        # if (mse > 2):
-        #     print("this class kinda sus:", c)
     print("W: ", W_track[-1])
     if plot_result:
         plt.plot(mse_track)
         plt.xlabel("Iterations")
         plt.ylabel("MSE")
         # plt.show()
+
+    print("Completed training with ", i, " iterations")
 
     return W_track[-1]
 
@@ -211,12 +212,17 @@ def plot_hist(dataset):
     plt.show()
 
 
-def reduce_dataset_attributes(removed_attribute_indexs):
+def reduce_dataset_attributes(dataset, removed_attribute_indexs):
 
-    alternative_dataset = np.delete(dataset, removed_attribute_indexs, axis=2)
-    num_attributes = len(removed_attribute_indexs)
+    reduced_dataset = np.delete(dataset, removed_attribute_indexs, axis=2)
 
-    return alternative_dataset, num_attributes
+    current_num_attributes = np.size(dataset, axis=2) - 1
+
+    print("current_num_attributes: ", current_num_attributes)
+
+    num_attributes = current_num_attributes - len(removed_attribute_indexs)
+
+    return reduced_dataset, num_attributes
 
 
 def format_dataset(datasets):
@@ -242,39 +248,50 @@ def format_dataset(datasets):
 
 dataset = format_dataset([x1all, x2all, x3all])
 
-# set alternative dataset with reduced number of attributes
-# alternative_dataset, num_attributes = reduce_dataset_attributes([1])
 
-# plot histograms
-# plot_hist(dataset)
-# plot_hist(alternative_dataset)
+# W_track = np.full([1, num_classes, num_attributes+1], 0)
 
-training_dataset, testing_dataset = split_dataset(
-    dataset, training_size)
+# alphas = [0.5, 0.1, 0.05, 0.01]
 
-W_track = np.full([1, num_classes, num_attributes+1], 0)
-
-alphas = [0.5, 0.1, 0.05, 0.01]
-
-fig = plt.figure(figsize=(16/2, 9/2))
-sns.set_theme(style="darkgrid")
+# fig = plt.figure(figsize=(16/2, 9/2))
+# sns.set_theme(style="darkgrid")
 # for alpha in alphas:
 
 #     W_track_final = train_LC(training_dataset, W_track,
 #  alpha=alpha, total_iterations=1000, plot_result=True)
-for alpha in alphas:
+
+
+alphas = [0.5, 0.1, 0.05, 0.01]
+
+
+# plot histograms
+# plot_hist(dataset)
+
+features_to_remove = [[], [2], [0, 2], [0, 1, 2]]
+
+for removed in features_to_remove:
+
+    # set alternative dataset with reduced number of attributes
+    alternative_dataset, num_attributes = reduce_dataset_attributes(
+        dataset, removed)
+    print("num_attributes: ", num_attributes)
+
+    W_track = np.full([1, num_classes, num_attributes+1], 0)
+
+    training_dataset, testing_dataset = split_dataset(
+        alternative_dataset, training_size)
 
     W_track_final = train_LC(training_dataset, W_track,
-                             alpha=alpha, mse_threshold=0.5, max_iterations=10000, use_dynamic_alpha=False,  plot_result=True)
+                             alpha=alpha, grad_mse_threshold=0.07, max_iterations=10000, use_dynamic_alpha=True,  plot_result=False)
 
-plt.legend(["alpha = "+str(alpha) for alpha in alphas], loc="upper right")
-plt.show()
+# plt.legend(["alpha = "+str(alpha) for alpha in alphas], loc="upper right")
+# plt.show()
 
-# confusion_matrix = get_confusion_matrix(
-#     W_track_final, testing_dataset, alpha, True)
+    confusion_matrix = get_confusion_matrix(
+        W_track_final, testing_dataset, alpha, True)
 
-# print("Confusion matrix", confusion_matrix)
+    print("Confusion matrix", confusion_matrix)
 
-# error_rate = calculate_error_rate(confusion_matrix)
-# print("Error rate", error_rate)
-# print("final W", W_track_final)
+    error_rate = calculate_error_rate(confusion_matrix)
+    print("Error rate", error_rate)
+    print("final W", W_track_final)

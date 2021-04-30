@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 25.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.2" baseProfile="tiny" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+	 x="0px" y="0px" viewBox="0 0 562 372" overflow="visible" xml:space="preserve">
+<path fill="none" stroke="#000000" stroke-miterlimit="10" d="M215.8,247.5l0.1-41.4c0-6.7-3.3-10-10-10H79.5c-6.7,0-10,3.3-10,10
+	v65"/>
+<path stroke="#000000" stroke-miterlimit="10" d="M69.5,276.4l-3.5-7l3.5,1.8l3.5-1.8L69.5,276.4z"/>
+<g transform="translate(-0.5 -0.5)">
+	<text transform="matrix(1 0 0 1 190 230.175)" font-family="'ArialNarrow'" font-size="12px">T</text>
+	<text transform="matrix(1 0 0 1 195.6543 230.175)" font-family="'ArialNarrow'" font-size="12px">r</text>
+	<text transform="matrix(1 0 0 1 198.9297 230.175)" font-family="'ArialNarrow'" font-size="12px">u</text>
+	<text transform="matrix(1 0 0 1 204.4023 230.175)" font-family="'ArialNarrow'" font-size="12px">e</text>
+</g>
+<g transform="translate(-0.5 -0.5)">
+	<text transform="matrix(1 0 0 1 296 283.0412)" font-family="'ArialNarrow'" font-size="12px">False</text>
+</g>
+<path fill="none" stroke="#000000" stroke-miterlimit="10" d="M129.5,307.5h23.6"/>
+<path stroke="#000000" stroke-miterlimit="10" d="M158.4,307.5l-7,3.5l1.8-3.5l-1.8-3.5L158.4,307.5z"/>
+<path fill="#526375" d="M16.5,277.5h106c3.9,0,7,3.1,7,7v46c0,3.9-3.1,7-7,7h-106c-3.9,0-7-3.1-7-7v-46
+	C9.5,280.7,12.6,277.5,16.5,277.5z"/>
+<g transform="translate(-0.5 -0.5)">
+	<text transform="matrix(1 0 0 1 20.9717 296.6754)" fill="#FFFFFF" font-family="'ArialMT'" font-size="12px">Calculate distance </text>
+	<text transform="matrix(1 0 0 1 18.6338 311.0758)" fill="#FFFFFF" font-family="'ArialMT'" font-size="12px"> between reference </text>
+	<text transform="matrix(1 0 0 1 10.9668 325.4752)" fill="#FFFFFF" font-family="'ArialMT'" font-size="12px"> image and test image</text>
+</g>
+<path fill="none" stroke="#000000" stroke-miterlimit="10" d="M339.5,50.5h10c6.7,0,10,3.3,10,10v40c0,6.7-3.3,10-10,10h-170
+	c-6.7,0-10,2.3-10,6.8v6.8"/>
+<path stroke="#000000" stroke-miterlimit="10" d="M169.5,129.4l-3.5-7l3.5,1.8l3.5-1.8L169.5,129.4z"/>
+<path fill="#526375" stroke="#000000" stroke-miterlimit="10" d="M-0.5,23.5v-23h340v23"/>
+<path fill="none" stroke="#000000" stroke-miterlimit="10" d="M-0.5,23.5v77h340v-77"/>
+<path fill="none" stroke="#000000" stroke-miterlimit="10" d="M-0.5,23.5h340"/>
+<g>
+	<text transform="matrix(1 0 0 1 135.6572 16.5)" fill="#FFFFFF" font-family="'Arial-BoldMT'" font-size="12px">Preperation</text>
+</g>
+<path fill="none" stroke="#000000" stroke-miterlimit="10" d="M149.5,60.5h33.6"/>
+<path stroke="#000000" stroke-miterlimit="10" d="M188.4,60.5l-7,3.5l1.8-3.5l-1.8-3.5L188.4,60.5z"/>
+<path fill="#526375" d="M56.5,40.5h86c3.9,0,7,3.1,7,7v26c0,3.9-3.1,7-7,7h-86c-3.9,0-7-3.1-7-7v-26C49.5,43.6,52.6,40.5,56.5,40.5z
+	"/>
+<g transform="translate(-0.5 -0.5)">
+	<text transform="matrix(1 0 0 1 72.8076 64.5)" fill="#FFFFFF" font-family="'ArialMT'" font-size="12px">Load data</text>
+</g>
+<path fill="#526375" d="M259.6,203.4h66c3,0,5.4,3.1,5.4,7v26c0,3.9-2.4,7-5.4,7h-66c-3,0-5.4-3.1-5.4-7v-26
+	C254.3,206.6,256.7,203.4,259.6,203.4z"/>
+<g transform="translate(-0.5 -0.5)">
+	<text transform="matrix(1 0 0 1 281.5 228.3897)" fill="#FFFFFF" font-family="'ArialMT'" font-size="12px">Exit</text>
+</g>
+<path fill="#526375" d="M196.5,40.5h86c3.9,0,7,3.1,7,7v26c0,3.9-3.1,7-7,7h-86c-3.9,0-7-3.1-7-7v-26
+	C189.5,43.6,192.6,40.5,196.5,40.5z"/>
+<g transform="translate(-0.5 -0.5)">
+	<text transform="matrix(1 0 0 1 197.9795 57.2378)" fill="#FFFFFF" font-family="'ArialMT'" font-size="12px">Cluster dataset  </text>
+	<text transform="matrix(1 0 0 1 215.6543 71.6382)" fill="#FFFFFF" font-family="'ArialMT'" font-size="12px">if desired</text>
+</g>
+<path fill="none" stroke="#000000" stroke-miterlimit="10" d="M339.5,250.5h10c6.7,0,10-3.3,10-10v-45c0-6.7,2.3-10,6.8-10h6.8"/>
+<path fill="none" stroke="#000000" stroke-miterlimit="10" d="M272,307.5h10c6.7,0,10-3.3,10-10v-47"/>
+<path stroke="#000000" stroke-miterlimit="10" d="M378.4,185.5l-7,3.5l1.8-3.5l-1.8-3.5L378.4,185.5z"/>
+<path stroke="#000000" stroke-miterlimit="10" d="M292,244.4l3.5,7l-3.5-1.8l-3.5,1.8L292,244.4z"/>
+<path fill="#526375" stroke="#000000" stroke-miterlimit="10" d="M-0.5,153.5v-23h340v23"/>
+<path fill="none" stroke="#000000" stroke-miterlimit="10" d="M-0.5,153.5v217h340v-217"/>
+<path fill="none" stroke="#000000" stroke-miterlimit="10" d="M-0.5,153.5h340"/>
+<g>
+	<text transform="matrix(1 0 0 1 133.3252 146.5)" fill="#FFFFFF" font-family="'Arial-BoldMT'" font-size="12px">Calculations</text>
+</g>
+<path fill="#526375" d="M215.8,247.5l56.2,60l-56.2,60l-56.2-60L215.8,247.5z"/>
+<g>
+	<text transform="matrix(1 0 0 1 197.0732 304.3483)" fill="#FFFFFF" font-family="'ArialMT'" font-size="12px">Iterate  </text>
+	<text transform="matrix(1 0 0 1 177.0576 318.7487)" fill="#FFFFFF" font-family="'ArialMT'" font-size="12px">reference data</text>
+</g>
+<path fill="#526375" stroke="#000000" stroke-miterlimit="10" d="M379.5,23.5v-23h180v23"/>
+<path fill="none" stroke="#000000" stroke-miterlimit="10" d="M379.5,23.5v347h180v-347"/>
+<path fill="none" stroke="#000000" stroke-miterlimit="10" d="M379.5,23.5h180"/>
+<g>
+	<text transform="matrix(1 0 0 1 438.6602 16.5)" fill="#FFFFFF" font-family="'Arial-BoldMT'" font-size="12px">Evaluation</text>
+</g>
+<path fill="none" stroke="#000000" stroke-miterlimit="10" d="M469.5,130.5v33.6"/>
+<path stroke="#000000" stroke-miterlimit="10" d="M469.5,169.4l-3.5-7l3.5,1.8l3.5-1.8L469.5,169.4z"/>
+<path fill="#526375" d="M416.5,70.5h106c3.9,0,7,3.1,7,7v46c0,3.9-3.1,7-7,7h-106c-3.9,0-7-3.1-7-7v-46
+	C409.5,73.6,412.6,70.5,416.5,70.5z"/>
+<g transform="translate(-0.5 -0.5)">
+	<text transform="matrix(1 0 0 1 420.3066 97.6895)" fill="#FFFFFF" font-family="'ArialMT'" font-size="12px">Sort the distances  </text>
+	<text transform="matrix(1 0 0 1 420.6348 112.0898)" fill="#FFFFFF" font-family="'ArialMT'" font-size="12px">in ascending order</text>
+</g>
+<path fill="none" stroke="#000000" stroke-miterlimit="10" d="M469.5,230.5v33.6"/>
+<path stroke="#000000" stroke-miterlimit="10" d="M469.5,269.4l-3.5-7l3.5,1.8l3.5-1.8L469.5,269.4z"/>
+<path fill="#526375" d="M421.5,170.5h96c3.9,0,7,3.1,7,7v46c0,3.9-3.1,7-7,7h-96c-3.9,0-7-3.1-7-7v-46
+	C414.5,173.6,417.6,170.5,421.5,170.5z"/>
+<g transform="translate(-0.5 -0.5)">
+	<text transform="matrix(1 0 0 1 424.6396 189.4998)" fill="#FFFFFF" font-family="'ArialMT'" font-size="12px">Get the labels of  </text>
+	<text transform="matrix(1 0 0 1 417.9805 203.9001)" fill="#FFFFFF" font-family="'ArialMT'" font-size="12px">the k first elements  </text>
+	<text transform="matrix(1 0 0 1 437.9873 218.2996)" fill="#FFFFFF" font-family="'ArialMT'" font-size="12px">in sorted list</text>
+</g>
+<path fill="#526375" d="M416.5,270.5h106c3.9,0,7,3.1,7,7v46c0,3.9-3.1,7-7,7h-106c-3.9,0-7-3.1-7-7v-46
+	C409.5,273.6,412.6,270.5,416.5,270.5z"/>
+<g transform="translate(-0.5 -0.5)">
+	<text transform="matrix(1 0 0 1 427.6396 295.7998)" fill="#FFFFFF" font-family="'ArialMT'" font-size="12px">Return the label </text>
+	<text transform="matrix(1 0 0 1 441.3213 310.2002)" fill="#FFFFFF" font-family="'ArialMT'" font-size="12px"> in plurality</text>
+</g>
+</svg>

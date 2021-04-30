@@ -6,13 +6,15 @@ from tqdm import tqdm
 
 # ----------------- external lib ----------------- #
 #
-# Code credited to subhadarship and Thomas Rost. Accessed from https://github.com/subhadarship/kmeans_pytorch/blob/a65871651e9b38f89fa2bf0b02c0170bf40b52bf/kmeans_pytorch/__init__.py#L23 
+# The follwoing code is a modified version of code that where commited by subhadarship and Thomas Rost.
+# The modification where made to make better use of GPUs
+# Accessed from https://github.com/subhadarship/kmeans_pytorch/blob/a65871651e9b38f89fa2bf0b02c0170bf40b52bf/kmeans_pytorch/__init__.py#L23
 
 def pairwise_distance(data1, data2, device=torch.device('cpu'), tqdm_flag=True):
-    
+
     if tqdm_flag:
         print(f'device is :{device}')
-    
+
     # transfer to device
     data1, data2 = data1.to(device), data2.to(device)
 
@@ -26,6 +28,7 @@ def pairwise_distance(data1, data2, device=torch.device('cpu'), tqdm_flag=True):
     # return N*N matrix for pairwise distance
     dis = dis.sum(dim=-1).squeeze()
     return dis
+
 
 def initialize(X, num_clusters):
     """
@@ -67,7 +70,8 @@ def kmeans(
         print(f'running k-means on {device}..')
 
     if distance == 'euclidean':
-        pairwise_distance_function = partial(pairwise_distance, device=device, tqdm_flag=tqdm_flag)
+        pairwise_distance_function = partial(
+            pairwise_distance, device=device, tqdm_flag=tqdm_flag)
     elif distance == 'cosine':
         pairwise_distance_function = partial(pairwise_cosine, device=device)
     else:
@@ -95,6 +99,7 @@ def kmeans(
     iteration = 0
     if tqdm_flag:
         tqdm_meter = tqdm(desc='[running kmeans]')
+
     while True:
 
         dis = pairwise_distance_function(X, initial_state)
@@ -104,11 +109,11 @@ def kmeans(
         initial_state_pre = initial_state.clone()
 
         for index in range(num_clusters):
-            selected = torch.nonzero(choice_cluster == index).squeeze().to(device)
+            selected = torch.nonzero(
+                choice_cluster == index).squeeze().to(device)
 
             selected = torch.index_select(X, 0, selected)
 
-            # https://github.com/subhadarship/kmeans_pytorch/issues/16
             if selected.shape[0] == 0:
                 selected = X[torch.randint(len(X), (1,))]
 
