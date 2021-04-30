@@ -267,7 +267,9 @@ alphas = [0.5, 0.1, 0.05, 0.01]
 # plot histograms
 # plot_hist(dataset)
 
-features_to_remove = [[], [2], [0, 2], [0, 1, 2]]
+# features_to_remove = [[], [2], [0, 2], [0, 1, 2]]
+# features_to_remove = [[], [1], [1, 2], [0, 1, 2]]
+features_to_remove = [[], [0], [0, 1], [0, 1, 2]]
 
 for removed in features_to_remove:
 
