@@ -183,34 +183,28 @@ def format_partition_data_cpu(partition, num_clusters):
 # -------------------------- run -------------------------- #
 # --------------------------------------------------------- #
 
-
-#print( len(mat_contents['trainv']) )
-# nn = knn(mat_contents['trainv'], mat_contents['trainlab'],
-#          mat_contents['testv'][0], 1)
-# print(nn)
-
-# print(np.shape(mat_contents['testv']))
-#get_confusion_matrix(mat_contents['trainv'], mat_contents['trainlab'], mat_contents['testv'][0:1000], mat_contents['testlab'][0:1000], True)
-
-# partition = partition_data_set(
-#   mat_contents['trainv'], mat_contents['trainlab'], 64, True)
-plot_image(mat_contents['trainv'], mat_contents['trainlab'], 0+4*2, 4+4*2)
+#Calculate confusion matrix for first 1000 elemts in test data
+get_confusion_matrix(mat_contents['trainv'], mat_contents['trainlab'],
+                     mat_contents['testv'][0:1000], mat_contents['testlab'][0:1000], True)
 
 
+plot_image(mat_contents['trainv'], mat_contents['trainlab'], 0, 4)
+
+
+#Partiton data on CPU
 partition = partition_data_set(
     mat_contents['trainv'], mat_contents['trainlab'], num_clusters, False)
 partition_data_set, partition_labels = format_partition_data_cpu(partition, 64)
 
+#Confusion matrix for all testimages with test data
 get_confusion_matrix(partition_data_set, partition_labels,
                      mat_contents['testv'], mat_contents['testlab'], False, True)
-#print("partition: ", partition[:][1][1])
 
-
-partition_cpu = []
+#Partion data on GPU
 partition = partition_data_set(
-    mat_contents['trainv'], mat_contents['trainlab'], 64, True)
+    mat_contents['trainv'], mat_contents['trainlab'], num_clusters, True)
 
-print(partition[1][1][0])
+#Format GPU data
 cuda_partition_data_set = []
 for i in range(len(partition)):
     for j in range(len(partition[0][1])):
@@ -221,23 +215,9 @@ partition_labels = []
 for i in range(10):
     for j in range(64):
         partition_labels.append(i)
-
+        
+#Calcualte confusion matrix for GPU clustered data
 get_confusion_matrix(cuda_partition_data_set, partition_labels, torch.tensor(
     (mat_contents['testv'])), mat_contents['testlab'], True, True)
 
-# for p in partition:
-# partition_cpu.append([1].detach().to('cpu').numpy())
-# partition_cpu.append([element.detach().to('cpu').numpy() for element in partition[:][1][1]])
 
-#partition_cpu = np.array(partition_cpu)
-
-# vil ha datasett på formen [[cluster_0_for tallet 0],[cluster_1_for tallet 0], (...) [cluster_63_for tallet 0], (...) [cluster_0_for tallet 9], [cluster_63_for tallet 0]]
-
-print("partition_cpu shape: ", np.shape(partition_cpu))
-
-print("partition_cpu: ", partition_cpu)
-# .detach().to('cpu').numpy()
-# conf_mat = get_confusion_matrix(mat_contents['trainv'], mat_contents['trainlab'], mat_contents['testv'][0:30] , mat_contents['testlab'][0:30], True)
-# print(conf_mat)
-
-# plot_image(mat_contents['trainv'], mat_contents['trainlab'], 0, 7)
